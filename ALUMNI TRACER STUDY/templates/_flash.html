@@ -1,0 +1,4 @@
+{# Shows messages sent with flash(message, "success" | "error" | "info"). Add with:  {% include "_flash.html" %} #}
+{% for category, message in get_flashed_messages(with_categories=true) %}
+<p class="flash flash-{{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">{{ message }}</p>
+{% endfor %}

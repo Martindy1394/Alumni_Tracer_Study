@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ event.title }} | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .event-page { max-width: 860px; margin: 0 auto; }
+        .back-link { margin-bottom: 8px; }
+        .event-hero-image { width: 100%; max-height: 520px; object-fit: contain; display: block;
+                            border-radius: 12px; background: var(--surface-alt); box-shadow: var(--shadow); }
+        .event-page h1 { margin: 10px 0 12px; font-size: 2em; }
+        .event-page .college-label { margin-top: 22px; }
+        .past-note { display: inline-block; padding: 3px 12px; border-radius: 999px; background: var(--surface-alt);
+                     color: var(--text-secondary); font-size: 0.85em; font-weight: 600; }
+        .details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0 24px; }
+        .detail { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--brand-gold);
+                  border-radius: 8px; padding: 10px 14px; }
+        .detail span { display: block; font-size: 0.8em; font-weight: 600; letter-spacing: 0.06em;
+                       text-transform: uppercase; color: var(--text-secondary); }
+        .detail strong { color: var(--brand-navy-dark); }
+        .description { white-space: pre-line; font-size: 1.05em; line-height: 1.7; }
+    </style>
+</head>
+<body>
+    {% include "_nav.html" %}
+
+    <main id="main">
+        <article class="event-page">
+            <a class="back-link" href="/events">&larr; All events</a>
+            {% if event.image %}
+            <img class="event-hero-image" src="/static/event_images/{{ event.image }}" alt="Picture for {{ event.title }}">
+            {% endif %}
+
+            <span class="college-label">Posted by the {{ event.college|college_name }}</span>
+            <h1>{{ event.title }}</h1>
+            {% if event.event_date < today %}<span class="past-note">This event has already taken place</span>{% endif %}
+
+            <div class="details">
+                <div class="detail"><span>Date</span><strong>{{ event.event_date|long_date }}</strong></div>
+                {% if event.event_time %}<div class="detail"><span>Time</span><strong>{{ event.event_time }}</strong></div>{% endif %}
+                {% if event.location %}<div class="detail"><span>Venue</span><strong>{{ event.location }}</strong></div>{% endif %}
+            </div>
+
+            <div class="description">{{ event.description }}</div>
+
+            {% if event.link and event.event_date >= today %}
+            <p style="margin-top: 28px;">
+                <a class="btn gold" href="{{ event.link }}" target="_blank" rel="noopener">Register / More information</a>
+            </p>
+            {% endif %}
+        </article>
+    </main>
+    {% include "_footer.html" %}
+</body>
+</html>

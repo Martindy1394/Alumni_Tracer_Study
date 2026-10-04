@@ -1,0 +1,28 @@
+{# Shared footer. Add it at the end of <body> with:  {% include "_footer.html" %} #}
+<footer class="site-footer">
+    <div class="inner">
+        <div class="logos">
+            <img src="/static/images/isatu-logo.png" alt="">
+            <img src="/static/images/aar-logo.png" alt="">
+        </div>
+        <div>
+            <p><strong>Alumni Affairs and Relations</strong></p>
+            <p>{{ current_admin.college_name if current_admin else 'College of Computing and Informatics' }} &middot; Iloilo Science and Technology University</p>
+        </div>
+        <p class="copy">&copy; {{ now_year }} ISAT U {{ current_admin.college if current_admin else 'CCI' }} Alumni Affairs and Relations</p>
+    </div>
+</footer>
+<button type="button" class="to-top" id="toTop" aria-label="Back to top">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+<script>
+  // Show the back-to-top button once the visitor has scrolled down a screen or so
+  (function () {
+    const button = document.getElementById('toTop');
+    const update = () => button.classList.toggle('show', window.scrollY > 600);
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    button.addEventListener('click', () => window.scrollTo({ top: 0 }));
+  })();
+</script>

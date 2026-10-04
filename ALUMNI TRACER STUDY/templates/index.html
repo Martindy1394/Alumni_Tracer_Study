@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumni Tracer Survey | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/survey.css">
+</head>
+<body>
+    {# This survey is for every college, so the header does not name one #}
+    {% with hide_college = true %}{% include "_nav.html" %}{% endwith %}
+
+    <main id="main">
+      <div class="survey">
+        <div class="survey-head">
+            <a class="back-link" href="/survey">&larr; Not an alumnus? Go back</a>
+            <h1 class="page-title">ISAT U Alumni Tracing Survey</h1>
+            <p class="lead">Your answers help ISAT U improve its programs and monitor graduate employability.</p>
+        </div>
+        <div class="progress" aria-hidden="true">
+            <div class="progress-label"><strong id="progressStep">Step 1 of 6</strong><span><span class="req">*</span> Required question</span></div>
+            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        <!-- enctype="multipart/form-data" is needed for the proof of employment upload -->
+        <form id="multiStepForm" action="/submit-data" method="POST" enctype="multipart/form-data">
+            <!-- Chosen on the /survey page: this form is for alumni who graduated years ago -->
+            <input type="hidden" name="respondentType" value="Alumni">
+
+            <!-- ===================== STEP 1: DATA PRIVACY CONSENT AND DEMOGRAPHICS ===================== -->
+            <div class="form-step" id="step1">
+                <h3>Step 1 of 6: Data Privacy Consent and Demographics</h3>
+                <h4>DATA PRIVACY CONSENT</h4>
+                <p class="note">This survey would take at most ten (10) minutes of your time. Rest assured, your identity and all the information you have provided will be handled in accordance with the RA 10173 (Data Privacy Act of 2012).</p>
+                <fieldset class="question" data-required-group="consent">
+                    <legend>By clicking &quot;I Agree&quot; and proceeding with this online form, you are giving us consent to collect your data. <span class="req">*</span></legend>
+                    <label class="choice"><input type="checkbox" name="consent" value="I Agree."> I Agree.</label>
+                </fieldset>
+                <h4>DEMOGRAPHICS</h4>
+                <div class="question">
+                    <label for="lname">LAST NAME <span class="req">*</span></label>
+                    <input type="text" id="lname" name="lname" required>
+                </div>
+                <div class="question">
+                    <label for="fname">FIRST NAME <span class="req">*</span></label>
+                    <input type="text" id="fname" name="fname" required>
+                </div>
+                <div class="question">
+                    <label for="mname">MIDDLE NAME (Kindly indicate &#x27;N/A&#x27; if none.) <span class="req">*</span></label>
+                    <input type="text" id="mname" name="mname" required>
+                </div>
+                <fieldset class="question">
+                    <legend>SEX <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="sex" value="Female" required> Female</label>
+                    <label class="choice"><input type="radio" name="sex" value="Male" required> Male</label>
+                </fieldset>
+                <div class="question">
+                    <label for="mnum">CONTACT NUMBER <span class="req">*</span></label>
+                    <input type="tel" id="mnum" name="mnum" placeholder="e.g. 09171234567" required>
+                </div>
+                <div class="question">
+                    <label for="email">EMAIL (Kindly input your active email.) <span class="req">*</span></label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="question">
+                    <label for="address">PRESENT ADDRESS (Please do not abbreviate.) <span class="req">*</span></label>
+                    <input type="text" id="address" name="address" required>
+                </div>
+                <div class="question">
+                    <label for="bdate">DATE OF BIRTH <span class="req">*</span></label>
+                    <input type="date" id="bdate" name="bdate" required>
+                </div>
+                <fieldset class="question">
+                    <legend>CIVIL STATUS <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="civilStatus" value="Single" required> Single</label>
+                    <label class="choice"><input type="radio" name="civilStatus" value="Married" required> Married</label>
+                    <label class="choice"><input type="radio" name="civilStatus" value="Separated" required> Separated</label>
+                    <label class="choice"><input type="radio" name="civilStatus" value="Single Parent" required> Single Parent</label>
+                    <label class="choice"><input type="radio" name="civilStatus" value="Widow or Widower" required> Widow or Widower</label>
+                </fieldset>
+                <div class="buttons">
+                    <button type="button" class="btn" onclick="nextStep(2)">Next Step</button>
+                </div>
+            </div>
+
+            <!-- ===================== STEP 2: EDUCATIONAL BACKGROUND ===================== -->
+            <div class="form-step" id="step2" style="display:none;">
+                <h3>Step 2 of 6: Educational Background</h3>
+                <h4>EDUCATIONAL BACKGROUND</h4>
+                <div class="question">
+                    <label for="college">COLLEGE <span class="req">*</span></label>
+                    <select id="college" name="college" required>
+                        <option value=""></option>
+                        {% for c in survey_colleges %}
+                        <option value="{{ c.name }}" {{ 'selected' if c.name == chosen_college }}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- Section: CCI graduates choose from the list; other colleges type theirs (see _college_script.html) -->
+                <fieldset class="question" id="sectionCCI" hidden>
+                    <legend>SECTION <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="section" value="BSIS 4A" required> BSIS 4A</label>
+                    <label class="choice"><input type="radio" name="section" value="BSIS 4B" required> BSIS 4B</label>
+                    <label class="choice"><input type="radio" name="section" value="BSCS 4A" required> BSCS 4A</label>
+                    <label class="choice"><input type="radio" name="section" value="BSCS 4B" required> BSCS 4B</label>
+                    <label class="choice"><input type="radio" name="section" value="BSIT 4A" required> BSIT 4A</label>
+                    <label class="choice"><input type="radio" name="section" value="BSIT 4B" required> BSIT 4B</label>
+                    <label class="choice"><input type="radio" name="section" value="BSIT 4C" required> BSIT 4C</label>
+                    <label class="choice"><input type="radio" name="section" value="BSIT 4D" required> BSIT 4D</label>
+                </fieldset>
+                <div class="question" id="sectionOther" hidden>
+                    <label for="sectionText">SECTION <span class="req">*</span></label>
+                    <input type="text" id="sectionText" name="section" placeholder="e.g. BSED 4A" required>
+                </div>
+                <!-- The choices are the programs of the chosen college (admin Programs page) -->
+                <fieldset class="question">
+                    <legend>COURSE AND SPECIALIZATION <span class="req">*</span></legend>
+                    <p class="hint" id="programHint">Choose your college first.</p>
+                    <div id="programChoices"></div>
+                </fieldset>
+                <div class="question">
+                    <label for="yeargrad">YEAR GRADUATED <span class="req">*</span></label>
+                    <select id="yeargrad" name="yeargrad" required>
+                        <option value=""></option>
+                        <option value="2016">2016</option>
+                        <option value="2017">2017</option>
+                        <option value="2018">2018</option>
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                        <option value="2029">2029</option>
+                        <option value="2030">2030</option>
+                    </select>
+                </div>
+                <div class="question">
+                    <label for="yeargradOther">Year Graduated (Others)</label>
+                    <input type="text" id="yeargradOther" name="yeargradOther">
+                </div>
+                <fieldset class="question">
+                    <legend>HONORS AND AWARDS RECEIVED <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="honor" value="Summa Cum Laude" required> Summa Cum Laude</label>
+                    <label class="choice"><input type="radio" name="honor" value="Magna Cum Laude" required> Magna Cum Laude</label>
+                    <label class="choice"><input type="radio" name="honor" value="Cum Laude" required> Cum Laude</label>
+                    <label class="choice"><input type="radio" name="honor" value="Not Applicable" required> Not Applicable</label>
+                    <label class="choice"><input type="radio" name="honor" value="Other" required> Other:</label>
+                    <input type="text" name="honorOther" class="other-text" data-for="honor" placeholder="Please specify" aria-label="Please specify your other answer" disabled>
+                </fieldset>
+                <fieldset class="question" data-required-group="reason">
+                    <legend>REASONS FOR TAKING THE COURSE (Choose all that apply.) <span class="req">*</span></legend>
+                    <p class="hint">Check all that apply.</p>
+                    <label class="choice"><input type="checkbox" name="reason" value="High grades in the course or subject area(s) related to the course"> High grades in the course or subject area(s) related to the course</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="Good grades in high school"> Good grades in high school</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="Influence of parents or relatives"> Influence of parents or relatives</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="Peer influence"> Peer influence</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="Inspired by a role model"> Inspired by a role model</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="Strong passion for the profession"> Strong passion for the profession</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="Prospect for immediate employment"> Prospect for immediate employment</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="Status or prestige of the profession"> Status or prestige of the profession</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="Availability of course offering in chosen institution"> Availability of course offering in chosen institution</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="Prospect of career advancement"> Prospect of career advancement</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="Affordable for the family"> Affordable for the family</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="Prospect of attractive compensation"> Prospect of attractive compensation</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="Opportunity for employment abroad"> Opportunity for employment abroad</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="No particular choice or no better idea"> No particular choice or no better idea</label>
+                    <label class="choice"><input type="checkbox" name="reason" value="Other"> Other:</label>
+                    <input type="text" name="reasonOther" class="other-text" data-for="reason" placeholder="Please specify" aria-label="Please specify your other answer" disabled>
+                </fieldset>
+                <h4>PROFESSIONAL EXAMINATIONS PASSED</h4>
+                <p class="note">Note: Please leave it blank if the questions are not applicable to you.</p>
+                <div class="question">
+                    <label for="examName">NAME OF EXAMINATION (Please do not abbreviate.)</label>
+                    <input type="text" id="examName" name="examName">
+                </div>
+                <div class="question">
+                    <label for="examDate">DATE TAKEN</label>
+                    <input type="date" id="examDate" name="examDate">
+                </div>
+                <div class="question">
+                    <label for="examRating">RATING (in percentage)</label>
+                    <input type="number" id="examRating" name="examRating" placeholder="e.g. 85.50" min="0" max="100" step="0.01">
+                </div>
+                <div class="buttons">
+                    <button type="button" class="btn back" onclick="nextStep(1)">Back</button>
+                    <button type="button" class="btn" onclick="nextStep(3)">Next Step</button>
+                </div>
+            </div>
+
+            <!-- ===================== STEP 3: TRAININGS AND ADVANCE STUDIES ===================== -->
+            <div class="form-step" id="step3" style="display:none;">
+                <h3>Step 3 of 6: Trainings and Advance Studies</h3>
+                <h4>TRAININGS AND ADVANCE STUDIES ATTENDED AFTER COLLEGE</h4>
+                <p class="note">Note: Please leave it blank if the questions are not applicable to you. Please indicate all professional or work-related training program(s) including advance studies (post-baccalaureate programs) you have attended after college. If you have taken more than one, write one per line.</p>
+                <div class="question">
+                    <label for="trainingTitle">TITLE OF TRAINING/ADVANCE STUDY/POST-BACCALAUREATE PROGRAM (Please do not abbreviate.)</label>
+                    <textarea id="trainingTitle" name="trainingTitle" rows="4"></textarea>
+                </div>
+                <div class="question">
+                    <label for="trainingDuration">DURATION AND CREDITS EARNED</label>
+                    <textarea id="trainingDuration" name="trainingDuration" rows="4"></textarea>
+                </div>
+                <div class="question">
+                    <label for="trainingInstitution">NAME OF TRAINING INSTITUTION/COLLEGE/UNIVERSITY (Please do not abbreviate.)</label>
+                    <textarea id="trainingInstitution" name="trainingInstitution" rows="4"></textarea>
+                </div>
+                <fieldset class="question">
+                    <legend>STATUS</legend>
+                    <label class="choice"><input type="radio" name="trainingStatus" value="On-going"> On-going</label>
+                    <label class="choice"><input type="radio" name="trainingStatus" value="Completed"> Completed</label>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>REASONS FOR PURSUING ADVANCE STUDIES (Choose all that apply.)</legend>
+                    <p class="hint">Check all that apply.</p>
+                    <label class="choice"><input type="checkbox" name="advReason" value="For promotion"> For promotion</label>
+                    <label class="choice"><input type="checkbox" name="advReason" value="For professional development"> For professional development</label>
+                    <label class="choice"><input type="checkbox" name="advReason" value="Other"> Other:</label>
+                    <input type="text" name="advReasonOther" class="other-text" data-for="advReason" placeholder="Please specify" aria-label="Please specify your other answer" disabled>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>REASONS FOR TAKING THE POST-BACCALAUREATE PROGRAM (Choose all that apply.)</legend>
+                    <p class="hint">Check all that apply.</p>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="High grades in the course or subject area(s) related to the course"> High grades in the course or subject area(s) related to the course</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="Good grades in high school"> Good grades in high school</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="Influence of parents or relatives"> Influence of parents or relatives</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="Peer influence"> Peer influence</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="Inspired by a role model"> Inspired by a role model</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="Strong passion for the profession"> Strong passion for the profession</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="Prospect for immediate employment"> Prospect for immediate employment</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="Status or prestige of the profession"> Status or prestige of the profession</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="Availability of course offering in chosen institution"> Availability of course offering in chosen institution</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="Prospect of career advancement"> Prospect of career advancement</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="Affordable for the family"> Affordable for the family</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="Prospect of attractive compensation"> Prospect of attractive compensation</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="Opportunity for employment abroad"> Opportunity for employment abroad</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="No particular choice or no better idea"> No particular choice or no better idea</label>
+                    <label class="choice"><input type="checkbox" name="postbaccReason" value="Other"> Other:</label>
+                    <input type="text" name="postbaccReasonOther" class="other-text" data-for="postbaccReason" placeholder="Please specify" aria-label="Please specify your other answer" disabled>
+                </fieldset>
+                <div class="buttons">
+                    <button type="button" class="btn back" onclick="nextStep(2)">Back</button>
+                    <button type="button" class="btn" onclick="nextStep(4)">Next Step</button>
+                </div>
+            </div>
+
+            <!-- ===================== STEP 4: EMPLOYMENT DATA ===================== -->
+            <div class="form-step" id="step4" style="display:none;">
+                <h3>Step 4 of 6: Employment Data</h3>
+                <h4>EMPLOYMENT DATA</h4>
+                <fieldset class="question">
+                    <legend>Are you currently employed? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="employed" value="Yes" required> Yes</label>
+                    <label class="choice"><input type="radio" name="employed" value="No" required> No</label>
+                    <label class="choice"><input type="radio" name="employed" value="Never employed" required> Never employed</label>
+                </fieldset>
+                <div class="question">
+                    <label for="supervisorEmail">If Employed, please input your Supervisor&#x27;s Company Email Address.</label>
+                    <input type="email" id="supervisorEmail" name="supervisorEmail">
+                </div>
+                <fieldset class="question" data-required-group="unempReason">
+                    <legend>For those unemployed/never employed, kindly state the reason(s) why you are not yet employed. Choose all that apply. <span class="req">*</span></legend>
+                    <p class="hint">Check all that apply.</p>
+                    <label class="choice"><input type="checkbox" name="unempReason" value="Advance or further study"> Advance or further study</label>
+                    <label class="choice"><input type="checkbox" name="unempReason" value="Family concern and decided not to find a job"> Family concern and decided not to find a job</label>
+                    <label class="choice"><input type="checkbox" name="unempReason" value="Health-related reason(s)"> Health-related reason(s)</label>
+                    <label class="choice"><input type="checkbox" name="unempReason" value="Has long-term disability"> Has long-term disability</label>
+                    <label class="choice"><input type="checkbox" name="unempReason" value="Lack of work experience"> Lack of work experience</label>
+                    <label class="choice"><input type="checkbox" name="unempReason" value="No job opportunity"> No job opportunity</label>
+                    <label class="choice"><input type="checkbox" name="unempReason" value="Did not look for a job"> Did not look for a job</label>
+                    <label class="choice"><input type="checkbox" name="unempReason" value="Not Applicable"> Not Applicable</label>
+                    <label class="choice"><input type="checkbox" name="unempReason" value="Others"> Others</label>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>For those presently employed, what is your employment status? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="empStatus" value="Regular/Permanent" required> Regular/Permanent</label>
+                    <label class="choice"><input type="radio" name="empStatus" value="Temporary" required> Temporary</label>
+                    <label class="choice"><input type="radio" name="empStatus" value="Casual" required> Casual</label>
+                    <label class="choice"><input type="radio" name="empStatus" value="Contractual" required> Contractual</label>
+                    <label class="choice"><input type="radio" name="empStatus" value="Self-employed" required> Self-employed</label>
+                    <label class="choice"><input type="radio" name="empStatus" value="Probationary" required> Probationary</label>
+                    <label class="choice"><input type="radio" name="empStatus" value="Not Applicable" required> Not Applicable</label>
+                </fieldset>
+                <div class="question">
+                    <label for="occupation">What is your present job position? (Please do not abbreviate.)</label>
+                    <input type="text" id="occupation" name="occupation">
+                </div>
+                <fieldset class="question">
+                    <legend>What is your present job level position? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="jobLevel" value="Rank or Clerical" required> Rank or Clerical</label>
+                    <label class="choice"><input type="radio" name="jobLevel" value="Professional, Technical or Supervisory" required> Professional, Technical or Supervisory</label>
+                    <label class="choice"><input type="radio" name="jobLevel" value="Managerial or Executive" required> Managerial or Executive</label>
+                    <label class="choice"><input type="radio" name="jobLevel" value="Not Applicable" required> Not Applicable</label>
+                    <label class="choice"><input type="radio" name="jobLevel" value="Others" required> Others</label>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>What is your current gross monthly earning?</legend>
+                    <label class="choice"><input type="radio" name="currentSalary" value="Below PHP 5,000.00"> Below PHP 5,000.00</label>
+                    <label class="choice"><input type="radio" name="currentSalary" value="PHP 5,000.00 to less than PHP 10,000.00"> PHP 5,000.00 to less than PHP 10,000.00</label>
+                    <label class="choice"><input type="radio" name="currentSalary" value="PHP 10,000.00 to less than PHP 15,000.00"> PHP 10,000.00 to less than PHP 15,000.00</label>
+                    <label class="choice"><input type="radio" name="currentSalary" value="PHP 15,000.00 to less than PHP 20,000.00"> PHP 15,000.00 to less than PHP 20,000.00</label>
+                    <label class="choice"><input type="radio" name="currentSalary" value="PHP 20,000.00 to less than PHP 25,000.00"> PHP 20,000.00 to less than PHP 25,000.00</label>
+                    <label class="choice"><input type="radio" name="currentSalary" value="PHP 25,000.00 and above"> PHP 25,000.00 and above</label>
+                    <label class="choice"><input type="radio" name="currentSalary" value="Not Applicable"> Not Applicable</label>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>Is your current employment aligned to your course/specialization? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="jobAligned" value="Yes" required> Yes</label>
+                    <label class="choice"><input type="radio" name="jobAligned" value="No" required> No</label>
+                    <label class="choice"><input type="radio" name="jobAligned" value="Not Applicable" required> Not Applicable</label>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>Are you employed in a job requiring higher education (i.e. Master&#x27;s/Doctor&#x27;s degree)? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="higherEdRequired" value="Yes" required> Yes</label>
+                    <label class="choice"><input type="radio" name="higherEdRequired" value="No" required> No</label>
+                    <label class="choice"><input type="radio" name="higherEdRequired" value="Not Applicable" required> Not Applicable</label>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>Are you employed in the government? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="govEmployed" value="I am employed in the government." required> I am employed in the government.</label>
+                    <label class="choice"><input type="radio" name="govEmployed" value="I am employed in a private institution." required> I am employed in a private institution.</label>
+                    <label class="choice"><input type="radio" name="govEmployed" value="Not Applicable" required> Not Applicable</label>
+                </fieldset>
+                <div class="question">
+                    <label for="company">What is the name of your company/institution? (Please do not abbreviate.)</label>
+                    <input type="text" id="company" name="company">
+                </div>
+                <div class="question">
+                    <label for="businessLine">What is the major line of business of the company/institution you are presently employed in? <span class="req">*</span></label>
+                    <select id="businessLine" name="businessLine" required>
+                        <option value=""></option>
+                        <option value="Agriculture, hunting and forestry">Agriculture, hunting and forestry</option>
+                        <option value="Construction">Construction</option>
+                        <option value="Education">Education</option>
+                        <option value="Electricity, gas and water supply">Electricity, gas and water supply</option>
+                        <option value="Extra-territorial organizations and bodies">Extra-territorial organizations and bodies</option>
+                        <option value="Fashion and garments">Fashion and garments</option>
+                        <option value="Fishing">Fishing</option>
+                        <option value="Financial intermediation">Financial intermediation</option>
+                        <option value="Health and social work">Health and social work</option>
+                        <option value="Hotels and restaurants">Hotels and restaurants</option>
+                        <option value="Information and communication technology">Information and communication technology</option>
+                        <option value="Legal">Legal</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Marine and seafaring">Marine and seafaring</option>
+                        <option value="Mining and quarrying">Mining and quarrying</option>
+                        <option value="Other community, social and personal service activities">Other community, social and personal service activities</option>
+                        <option value="Private households with employed persons">Private households with employed persons</option>
+                        <option value="Public administration and defense; compulsory social security">Public administration and defense; compulsory social security</option>
+                        <option value="Real estate, renting and business activities">Real estate, renting and business activities</option>
+                        <option value="Transport storage and communication">Transport storage and communication</option>
+                        <option value="Wholesale and retail trade, repair of motor vehicles, motorcycles and, personal and household goods">Wholesale and retail trade, repair of motor vehicles, motorcycles and, personal and household goods</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" name="businessLineOther" class="other-text" data-for="businessLine" placeholder="Please specify" aria-label="Please specify your other answer" disabled>
+                </div>
+                <fieldset class="question">
+                    <legend>Where is your work located? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="workPlace" value="Local (within Region VI - Western Visayas)" required> Local (within Region VI - Western Visayas)</label>
+                    <label class="choice"><input type="radio" name="workPlace" value="National (within the Philippines)" required> National (within the Philippines)</label>
+                    <label class="choice"><input type="radio" name="workPlace" value="International (outside of Philippines)" required> International (outside of Philippines)</label>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>Is this your first job after college? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="firstJob" value="Yes" required> Yes</label>
+                    <label class="choice"><input type="radio" name="firstJob" value="No" required> No</label>
+                </fieldset>
+                <fieldset class="question" data-required-group="stayReason">
+                    <legend>If this is your first job, what are the reason(s) for staying on the job. Choose all that apply. <span class="req">*</span></legend>
+                    <p class="hint">Check all that apply.</p>
+                    <label class="choice"><input type="checkbox" name="stayReason" value="Salaries and benefits"> Salaries and benefits</label>
+                    <label class="choice"><input type="checkbox" name="stayReason" value="Career challenge"> Career challenge</label>
+                    <label class="choice"><input type="checkbox" name="stayReason" value="Related to special skill"> Related to special skill</label>
+                    <label class="choice"><input type="checkbox" name="stayReason" value="Related to course or program of study"> Related to course or program of study</label>
+                    <label class="choice"><input type="checkbox" name="stayReason" value="Proximity to residence"> Proximity to residence</label>
+                    <label class="choice"><input type="checkbox" name="stayReason" value="Peer influence"> Peer influence</label>
+                    <label class="choice"><input type="checkbox" name="stayReason" value="Family influence"> Family influence</label>
+                    <label class="choice"><input type="checkbox" name="stayReason" value="Other"> Other:</label>
+                    <input type="text" name="stayReasonOther" class="other-text" data-for="stayReason" placeholder="Please specify" aria-label="Please specify your other answer" disabled>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>Is your first job related to the course you took up in college? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="firstJobRelated" value="Yes" required> Yes</label>
+                    <label class="choice"><input type="radio" name="firstJobRelated" value="No" required> No</label>
+                </fieldset>
+                <fieldset class="question" data-required-group="acceptReason">
+                    <legend>What were your reason(s) for accepting your first job? Choose all that apply. <span class="req">*</span></legend>
+                    <p class="hint">Check all that apply.</p>
+                    <label class="choice"><input type="checkbox" name="acceptReason" value="Salaries and benefits"> Salaries and benefits</label>
+                    <label class="choice"><input type="checkbox" name="acceptReason" value="Career challenge"> Career challenge</label>
+                    <label class="choice"><input type="checkbox" name="acceptReason" value="Related to special skills"> Related to special skills</label>
+                    <label class="choice"><input type="checkbox" name="acceptReason" value="Proximity to residence"> Proximity to residence</label>
+                    <label class="choice"><input type="checkbox" name="acceptReason" value="Not Applicable"> Not Applicable</label>
+                    <label class="choice"><input type="checkbox" name="acceptReason" value="Other"> Other:</label>
+                    <input type="text" name="acceptReasonOther" class="other-text" data-for="acceptReason" placeholder="Please specify" aria-label="Please specify your other answer" disabled>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>How long did you stay in your first job? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="firstJobStay" value="Less than a month" required> Less than a month</label>
+                    <label class="choice"><input type="radio" name="firstJobStay" value="1 to 6 months" required> 1 to 6 months</label>
+                    <label class="choice"><input type="radio" name="firstJobStay" value="7 to 11 months" required> 7 to 11 months</label>
+                    <label class="choice"><input type="radio" name="firstJobStay" value="1 year to less than 2 years" required> 1 year to less than 2 years</label>
+                    <label class="choice"><input type="radio" name="firstJobStay" value="2 years to less than 3 years" required> 2 years to less than 3 years</label>
+                    <label class="choice"><input type="radio" name="firstJobStay" value="3 years to 4 years" required> 3 years to 4 years</label>
+                    <label class="choice"><input type="radio" name="firstJobStay" value="Not Applicable" required> Not Applicable</label>
+                    <label class="choice"><input type="radio" name="firstJobStay" value="Other" required> Other:</label>
+                    <input type="text" name="firstJobStayOther" class="other-text" data-for="firstJobStay" placeholder="Please specify" aria-label="Please specify your other answer" disabled>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>How did you find your first job? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="findFirstJob" value="Response to an advertisement" required> Response to an advertisement</label>
+                    <label class="choice"><input type="radio" name="findFirstJob" value="As a walk-in applicant" required> As a walk-in applicant</label>
+                    <label class="choice"><input type="radio" name="findFirstJob" value="Recommended by someone" required> Recommended by someone</label>
+                    <label class="choice"><input type="radio" name="findFirstJob" value="Information from friends" required> Information from friends</label>
+                    <label class="choice"><input type="radio" name="findFirstJob" value="Arranged by school&#x27;s job placement officer" required> Arranged by school&#x27;s job placement officer</label>
+                    <label class="choice"><input type="radio" name="findFirstJob" value="Family business" required> Family business</label>
+                    <label class="choice"><input type="radio" name="findFirstJob" value="Job fair or Public Employment Service Office (PESO)" required> Job fair or Public Employment Service Office (PESO)</label>
+                    <label class="choice"><input type="radio" name="findFirstJob" value="Not Applicable" required> Not Applicable</label>
+                    <label class="choice"><input type="radio" name="findFirstJob" value="Other" required> Other:</label>
+                    <input type="text" name="findFirstJobOther" class="other-text" data-for="findFirstJob" placeholder="Please specify" aria-label="Please specify your other answer" disabled>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>How long did it take you to land your first job?</legend>
+                    <label class="choice"><input type="radio" name="timeToJob" value="Less than a month"> Less than a month</label>
+                    <label class="choice"><input type="radio" name="timeToJob" value="1 to 6 months"> 1 to 6 months</label>
+                    <label class="choice"><input type="radio" name="timeToJob" value="7 to 11 months"> 7 to 11 months</label>
+                    <label class="choice"><input type="radio" name="timeToJob" value="1 year to less than 2 years"> 1 year to less than 2 years</label>
+                    <label class="choice"><input type="radio" name="timeToJob" value="2 years to less than 3 years"> 2 years to less than 3 years</label>
+                    <label class="choice"><input type="radio" name="timeToJob" value="3 years to 4 years"> 3 years to 4 years</label>
+                    <label class="choice"><input type="radio" name="timeToJob" value="Not Applicable"> Not Applicable</label>
+                    <label class="choice"><input type="radio" name="timeToJob" value="Other"> Other:</label>
+                    <input type="text" name="timeToJobOther" class="other-text" data-for="timeToJob" placeholder="Please specify" aria-label="Please specify your other answer" disabled>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>What is your job level position in your first job? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="firstJobLevel" value="Rank or Clerical" required> Rank or Clerical</label>
+                    <label class="choice"><input type="radio" name="firstJobLevel" value="Professional, Technical or Supervisory" required> Professional, Technical or Supervisory</label>
+                    <label class="choice"><input type="radio" name="firstJobLevel" value="Managerial or Executive" required> Managerial or Executive</label>
+                    <label class="choice"><input type="radio" name="firstJobLevel" value="Not Applicable" required> Not Applicable</label>
+                    <label class="choice"><input type="radio" name="firstJobLevel" value="Others" required> Others</label>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>What is your initial gross monthly earning in your first job after college? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="firstJobSalary" value="Below PHP 5,000.00" required> Below PHP 5,000.00</label>
+                    <label class="choice"><input type="radio" name="firstJobSalary" value="PHP 5,000.00 to less than PHP 10,000.00" required> PHP 5,000.00 to less than PHP 10,000.00</label>
+                    <label class="choice"><input type="radio" name="firstJobSalary" value="PHP 10,000.00 to less than PHP 15,000.00" required> PHP 10,000.00 to less than PHP 15,000.00</label>
+                    <label class="choice"><input type="radio" name="firstJobSalary" value="PHP 15,000.00 to less than PHP 20,000.00" required> PHP 15,000.00 to less than PHP 20,000.00</label>
+                    <label class="choice"><input type="radio" name="firstJobSalary" value="PHP 20,000.00 to less than PHP 25,000.00" required> PHP 20,000.00 to less than PHP 25,000.00</label>
+                    <label class="choice"><input type="radio" name="firstJobSalary" value="PHP 25,000.00 and above" required> PHP 25,000.00 and above</label>
+                    <label class="choice"><input type="radio" name="firstJobSalary" value="Not Applicable" required> Not Applicable</label>
+                </fieldset>
+                <fieldset class="question">
+                    <legend>If you had left your first job, what were the reason(s)? Choose all that apply.</legend>
+                    <p class="hint">Check all that apply.</p>
+                    <label class="choice"><input type="checkbox" name="leftReason" value="Salaries and benefits"> Salaries and benefits</label>
+                    <label class="choice"><input type="checkbox" name="leftReason" value="Career challenge"> Career challenge</label>
+                    <label class="choice"><input type="checkbox" name="leftReason" value="Related to special skills"> Related to special skills</label>
+                    <label class="choice"><input type="checkbox" name="leftReason" value="Proximity to residence"> Proximity to residence</label>
+                    <label class="choice"><input type="checkbox" name="leftReason" value="Not Applicable"> Not Applicable</label>
+                    <label class="choice"><input type="checkbox" name="leftReason" value="Other"> Other:</label>
+                    <input type="text" name="leftReasonOther" class="other-text" data-for="leftReason" placeholder="Please specify" aria-label="Please specify your other answer" disabled>
+                </fieldset>
+                <div class="buttons">
+                    <button type="button" class="btn back" onclick="nextStep(3)">Back</button>
+                    <button type="button" class="btn" onclick="nextStep(5)">Next Step</button>
+                </div>
+            </div>
+
+            <!-- ===================== STEP 5: CURRICULAR IMPROVEMENT AND ENTREPRENEURIAL VENTURE ===================== -->
+            <div class="form-step" id="step5" style="display:none;">
+                <h3>Step 5 of 6: Curricular Improvement and Entrepreneurial Venture</h3>
+                <h4>CURRICULAR IMPROVEMENT</h4>
+                <fieldset class="question">
+                    <legend>Was the curriculum you had in college relevant to your first job? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="curriculumRelevant" value="Yes" required> Yes</label>
+                    <label class="choice"><input type="radio" name="curriculumRelevant" value="No" required> No</label>
+                </fieldset>
+                <fieldset class="question" data-required-group="competencies">
+                    <legend>If yes, what competencies learned in college did you find very useful in your first job? Choose all that apply. <span class="req">*</span></legend>
+                    <p class="hint">Check all that apply.</p>
+                    <label class="choice"><input type="checkbox" name="competencies" value="Communication skills"> Communication skills</label>
+                    <label class="choice"><input type="checkbox" name="competencies" value="Entrepreneurial skills"> Entrepreneurial skills</label>
+                    <label class="choice"><input type="checkbox" name="competencies" value="Information technology skills"> Information technology skills</label>
+                    <label class="choice"><input type="checkbox" name="competencies" value="Problem-solving skills"> Problem-solving skills</label>
+                    <label class="choice"><input type="checkbox" name="competencies" value="Critical thinking skills"> Critical thinking skills</label>
+                    <label class="choice"><input type="checkbox" name="competencies" value="Not Applicable"> Not Applicable</label>
+                    <label class="choice"><input type="checkbox" name="competencies" value="Other"> Other:</label>
+                    <input type="text" name="competenciesOther" class="other-text" data-for="competencies" placeholder="Please specify" aria-label="Please specify your other answer" disabled>
+                </fieldset>
+                <fieldset class="question" data-required-group="selfEmpCompetencies">
+                    <legend>If self-employed, what competencies learned in college did you find very useful in your first job? Choose all that apply. <span class="req">*</span></legend>
+                    <p class="hint">Check all that apply.</p>
+                    <label class="choice"><input type="checkbox" name="selfEmpCompetencies" value="Communication skills"> Communication skills</label>
+                    <label class="choice"><input type="checkbox" name="selfEmpCompetencies" value="Entrepreneurial skills"> Entrepreneurial skills</label>
+                    <label class="choice"><input type="checkbox" name="selfEmpCompetencies" value="Information technology skills"> Information technology skills</label>
+                    <label class="choice"><input type="checkbox" name="selfEmpCompetencies" value="Problem-solving skills"> Problem-solving skills</label>
+                    <label class="choice"><input type="checkbox" name="selfEmpCompetencies" value="Critical thinking skills"> Critical thinking skills</label>
+                    <label class="choice"><input type="checkbox" name="selfEmpCompetencies" value="Not Applicable"> Not Applicable</label>
+                    <label class="choice"><input type="checkbox" name="selfEmpCompetencies" value="Other"> Other:</label>
+                    <input type="text" name="selfEmpCompetenciesOther" class="other-text" data-for="selfEmpCompetencies" placeholder="Please specify" aria-label="Please specify your other answer" disabled>
+                </fieldset>
+                <div class="question">
+                    <label for="suggestions">List down suggestions to further improve your course curriculum.</label>
+                    <textarea id="suggestions" name="suggestions" rows="4"></textarea>
+                </div>
+                <h4>ENTREPRENEURIAL VENTURE</h4>
+                <div class="question">
+                    <label for="businessNature">For those who are self-employed, what is the nature of your business venture (ex. online store, restaurant).</label>
+                    <input type="text" id="businessNature" name="businessNature">
+                </div>
+                <fieldset class="question">
+                    <legend>For those who are employed, do you have any side hustles or business ventures?</legend>
+                    <label class="choice"><input type="radio" name="sideHustle" value="Yes"> Yes</label>
+                    <label class="choice"><input type="radio" name="sideHustle" value="No"> No</label>
+                </fieldset>
+                <div class="question">
+                    <label for="sideHustleDetails">If you have answered yes in the previous question, kindly specify your side hustle/business venture.</label>
+                    <input type="text" id="sideHustleDetails" name="sideHustleDetails">
+                </div>
+                <fieldset class="question">
+                    <legend>Have you created a startup (DTI-registered business) after graduation? <span class="req">*</span></legend>
+                    <label class="choice"><input type="radio" name="startup" value="Yes" required> Yes</label>
+                    <label class="choice"><input type="radio" name="startup" value="No" required> No</label>
+                </fieldset>
+                <div class="buttons">
+                    <button type="button" class="btn back" onclick="nextStep(4)">Back</button>
+                    <button type="button" class="btn" onclick="nextStep(6)">Next Step</button>
+                </div>
+            </div>
+
+            <!-- ===================== STEP 6: RECOMMENDATION AND CONFIRMATION ===================== -->
+            <div class="form-step" id="step6" style="display:none;">
+                <h3>Step 6 of 6: Recommendation and Confirmation</h3>
+                <h4>RECOMMENDATION</h4>
+                <fieldset class="question">
+                    <legend>Kindly indicate your agreement to the following statements. <span class="req">*</span></legend>
+                    <div class="grid-wrap"><table class="grid">
+                        <tr><th></th><th>Highly disagree</th><th>Disagree</th><th>Neutral</th><th>Agree</th><th>Highly agree</th></tr>
+                        <tr><th>I will recommend ISAT U as a choice for higher educational institutions.</th><td><label><input type="radio" name="recommendIsatu" value="Highly disagree" aria-label="Highly disagree" required><span>Highly disagree</span></label></td><td><label><input type="radio" name="recommendIsatu" value="Disagree" aria-label="Disagree" required><span>Disagree</span></label></td><td><label><input type="radio" name="recommendIsatu" value="Neutral" aria-label="Neutral" required><span>Neutral</span></label></td><td><label><input type="radio" name="recommendIsatu" value="Agree" aria-label="Agree" required><span>Agree</span></label></td><td><label><input type="radio" name="recommendIsatu" value="Highly agree" aria-label="Highly agree" required><span>Highly agree</span></label></td></tr>
+                        <tr><th>I will recommend my course in ISAT U.</th><td><label><input type="radio" name="recommendCourse" value="Highly disagree" aria-label="Highly disagree" required><span>Highly disagree</span></label></td><td><label><input type="radio" name="recommendCourse" value="Disagree" aria-label="Disagree" required><span>Disagree</span></label></td><td><label><input type="radio" name="recommendCourse" value="Neutral" aria-label="Neutral" required><span>Neutral</span></label></td><td><label><input type="radio" name="recommendCourse" value="Agree" aria-label="Agree" required><span>Agree</span></label></td><td><label><input type="radio" name="recommendCourse" value="Highly agree" aria-label="Highly agree" required><span>Highly agree</span></label></td></tr>
+                    </table></div>
+                </fieldset>
+                <div class="question">
+                    <label for="proudOf">Please complete the following statement. &quot;I am proud of ISAT U because...&quot; <span class="req">*</span></label>
+                    <textarea id="proudOf" name="proudOf" rows="4" required></textarea>
+                </div>
+                <div class="question">
+                    <label for="otherRecommendations">Other Recommendations</label>
+                    <textarea id="otherRecommendations" name="otherRecommendations" rows="4"></textarea>
+                </div>
+                <h4>PROOF OF EMPLOYMENT</h4>
+                <div class="question">
+                    <label for="proofFile">Kindly attach a proof of your employment (ex. scanned copy of your appointment; a picture of you in your workplace).</label>
+                    <input type="file" id="proofFile" name="proofFile" accept="image/*,.pdf">
+                    <p class="hint">Image or PDF, up to 10 MB.</p>
+                </div>
+                <h4>THANK YOU FOR YOUR VALUABLE TIME SPENT TO FILL OUT THIS FORM.</h4>
+                <fieldset class="question" data-required-group="confirmation">
+                    <legend>CONFIRMATION <span class="req">*</span></legend>
+                    <label class="choice"><input type="checkbox" name="confirmation" value="I certify that all information given is true and correct, and I allow ISAT U to use the data gathered for any legal purposes."> I certify that all information given is true and correct, and I allow ISAT U to use the data gathered for any legal purposes.</label>
+                </fieldset>
+                <div class="buttons">
+                    <button type="button" class="btn back" onclick="nextStep(5)">Back</button>
+                    <button type="submit" class="btn">Save Form</button>
+                </div>
+            </div>
+        </form>
+      </div>
+    </main>
+
+<script>
+const form = document.getElementById('multiStepForm');
+const steps = Array.from(document.querySelectorAll('.form-step'));
+let currentStep = 1;
+
+function showStep(stepNumber) {
+  steps.forEach(step => step.style.display = 'none');
+  document.getElementById('step' + stepNumber).style.display = 'block';
+  currentStep = stepNumber;
+  document.getElementById('progressStep').textContent = 'Step ' + stepNumber + ' of ' + steps.length;
+  document.getElementById('progressFill').style.width = (stepNumber / steps.length * 100) + '%';
+  window.scrollTo(0, 0);
+}
+
+// "Check all that apply" groups marked data-required-group need at least one box ticked
+function checkGroups(step) {
+  for (const group of step.querySelectorAll('fieldset[data-required-group]')) {
+    const boxes = group.querySelectorAll('input[type="checkbox"]');
+    const anyChecked = Array.from(boxes).some(box => box.checked);
+    boxes[0].setCustomValidity(anyChecked ? '' : 'Please check at least one option.');
+  }
+}
+
+// Returns true when every field in the step is valid; otherwise shows the browser's message
+function validateStep(step) {
+  checkGroups(step);
+  for (const field of step.querySelectorAll('input, select, textarea')) {
+    if (!field.checkValidity()) {
+      field.reportValidity();
+      return false;
+    }
+  }
+  return true;
+}
+
+function nextStep(stepNumber) {
+  // Only check the current step when moving forward; going Back is always allowed
+  if (stepNumber > currentStep && !validateStep(document.getElementById('step' + currentStep))) {
+    return;
+  }
+  showStep(stepNumber);
+}
+
+// Show the "Please specify" box only while its "Other" choice is selected.
+// Disabled inputs are hidden, skipped by validation, and not sent to the server.
+function syncOtherInputs() {
+  for (const input of form.querySelectorAll('.other-text')) {
+    const name = input.dataset.for;
+    const select = form.querySelector(`select[name="${name}"]`);
+    const chosen = select
+      ? select.value === 'Other'
+      : form.querySelector(`input[name="${name}"][value="Other"]`).checked;
+    input.disabled = !chosen;
+    input.required = chosen;
+  }
+}
+
+form.addEventListener('change', event => {
+  if (event.target.type === 'checkbox') {
+    checkGroups(event.target.closest('.form-step'));
+  }
+  syncOtherInputs();
+});
+syncOtherInputs();
+
+// The server accepts files up to 10 MB; warn as soon as a bigger file is chosen so no answers are lost
+const proofFile = form.querySelector('input[name="proofFile"]');
+if (proofFile) {
+  proofFile.addEventListener('change', () => {
+    const file = proofFile.files[0];
+    proofFile.setCustomValidity(file && file.size > 10 * 1024 * 1024
+      ? 'This file is larger than 10 MB. Please choose a smaller file or a lower-resolution photo.' : '');
+    proofFile.reportValidity();
+  });
+}
+
+// Final check before saving: jump back to the first step that still has a problem
+form.addEventListener('submit', event => {
+  for (const step of steps) {
+    step.style.display = 'block';
+    const valid = validateStep(step);
+    step.style.display = 'none';
+    if (!valid) {
+      event.preventDefault();
+      showStep(steps.indexOf(step) + 1);
+      validateStep(step);
+      return;
+    }
+  }
+  showStep(currentStep);
+});
+</script>
+    {% include "_college_script.html" %}
+
+    {% include "_footer.html" %}
+</body>
+</html>

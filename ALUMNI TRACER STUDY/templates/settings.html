@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    {% include "_nav.html" %}
+
+    <main id="main" class="narrow">
+        <h1 class="page-title">Settings</h1>
+        {% include "_flash.html" %}
+
+        <!-- ===================== PROFILE ===================== -->
+        <form class="card settings-section" method="POST" action="/admin/settings/profile">
+            <h2>Profile</h2>
+
+            <label for="full_name">Full name</label>
+            <input type="text" id="full_name" name="full_name" value="{{ admin.full_name }}" autocomplete="name" required>
+
+            <label for="mobile">Mobile number</label>
+            <input type="tel" id="mobile" name="mobile" value="{{ admin.mobile or '' }}" placeholder="e.g. 09171234567" autocomplete="tel">
+
+            <label for="email">Registered email</label>
+            <input type="email" id="email" value="{{ admin.email }}" readonly>
+            <p class="hint">Verification codes for password changes are sent to this address.</p>
+
+            <button type="submit" class="btn">Save profile</button>
+        </form>
+
+        <!-- ===================== PASSWORD ===================== -->
+        <form class="card settings-section" id="password" method="POST" action="/admin/settings/password">
+            <h2>Update password</h2>
+            <p class="muted">
+                For your security, we'll email a 6-digit code to your registered email. Your new password takes effect
+                only after you enter that code.
+            </p>
+
+            <label for="current_password">Current password</label>
+            <input type="password" id="current_password" name="current_password" autocomplete="current-password" required>
+
+            <label for="new_password">New password</label>
+            <input type="password" id="new_password" name="new_password" minlength="{{ min_length }}" autocomplete="new-password" required>
+            <p class="hint">At least {{ min_length }} characters.</p>
+
+            <label for="confirm_password">Confirm new password</label>
+            <input type="password" id="confirm_password" name="confirm_password" minlength="{{ min_length }}" autocomplete="new-password" required>
+
+            <button type="submit" class="btn">Send verification code</button>
+        </form>
+    </main>
+    {% include "_footer.html" %}
+</body>
+</html>

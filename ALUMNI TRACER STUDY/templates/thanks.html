@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    {% include "_nav.html" %}
+
+    <main id="main">
+        <div class="card" style="max-width: 640px; margin: 40px auto;">
+            <h1 class="page-title">Thank you, {{ name }}!</h1>
+            <p class="lead">Your response to the ISAT U Alumni Tracer Study has been saved. We appreciate the time you spent filling out the form.</p>
+            <p style="margin-top: 20px;"><a class="btn" href="/">Back to Home</a></p>
+        </div>
+    </main>
+    {% include "_footer.html" %}
+</body>
+</html>

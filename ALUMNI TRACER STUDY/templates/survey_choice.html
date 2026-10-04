@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participate in the Tracer Study | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .choice-page { max-width: 860px; margin: 0 auto; text-align: center; }
+        .choice-page .lead { margin: 8px auto 0; }
+        .choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 32px; text-align: left; }
+        .choice-card {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 26px 24px 24px;
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-top: 6px solid var(--brand-gold);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+        }
+        .choice-card:hover, .choice-card:focus-visible {
+            transform: translateY(-3px);
+            border-color: var(--brand-navy);
+            box-shadow: 0 10px 28px rgba(8, 17, 92, 0.14);
+            outline: none;
+        }
+        .choice-icon {
+            width: 56px;
+            height: 56px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: var(--brand-gold-soft);
+            color: var(--brand-navy);
+        }
+        .choice-card h2 { margin: 4px 0 0; font-size: 1.35em; padding: 0; }
+        .choice-card h2::after { display: none; }
+        .choice-card p { margin: 0; color: var(--text-secondary); }
+        .choice-card .go { margin-top: auto; padding-top: 10px; font-family: var(--font-heading); font-weight: 600; color: var(--brand-navy); }
+    </style>
+</head>
+<body>
+    {% include "_nav.html" %}
+
+    <main id="main">
+        <div class="choice-page">
+            <h1 class="page-title">Participate in the Tracer Study</h1>
+            <p class="lead">Thank you for taking part! First, tell us which group you belong to so we can show you the right survey.</p>
+
+            <div class="choices">
+                <a class="choice-card" href="/survey/new-graduate">
+                    <span class="choice-icon" aria-hidden="true">
+                        <!-- graduation cap -->
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/><path d="M22 10v6"/>
+                        </svg>
+                    </span>
+                    <h2>New Graduate</h2>
+                    <p>You graduated this school year or are about to graduate from Iloilo Science and Technology University.</p>
+                    <span class="go">Continue as a new graduate &rarr;</span>
+                </a>
+
+                <a class="choice-card" href="/survey/alumni">
+                    <span class="choice-icon" aria-hidden="true">
+                        <!-- briefcase -->
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/>
+                        </svg>
+                    </span>
+                    <h2>Alumni</h2>
+                    <p>You graduated years ago and would like to share your education, employment and career journey since leaving ISAT U.</p>
+                    <span class="go">Continue as an alumnus &rarr;</span>
+                </a>
+            </div>
+        </div>
+    </main>
+    {% include "_footer.html" %}
+</body>
+</html>

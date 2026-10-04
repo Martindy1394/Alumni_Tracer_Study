@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Alumni | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .mail-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 20px; margin-top: 20px; align-items: start; }
+        @media (max-width: 860px) { .mail-grid { grid-template-columns: 1fr; } }
+        .mail-grid h2 { font-size: 1.15em; margin: 0 0 12px; padding: 0; }
+        .mail-grid h2::after { display: none; }
+
+        .compose label { display: block; font-weight: 600; margin: 14px 0 6px; }
+        .compose input[type="text"], .compose textarea, .actions select {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 1em;
+            border: 1px solid #c9cee3;
+            border-radius: 8px;
+            background: #ffffff;
+            color: var(--text-primary);
+        }
+        .compose textarea { min-height: 320px; resize: vertical; line-height: 1.5; }
+        .compose input:focus, .compose textarea:focus {
+            outline: none;
+            border-color: var(--brand-navy);
+            box-shadow: 0 0 0 3px rgba(13, 27, 142, 0.15);
+        }
+        .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .tag {
+            border: 1px solid #f3df8a;
+            background: var(--brand-gold-soft);
+            color: var(--brand-navy-dark);
+            border-radius: 999px;
+            padding: 3px 10px;
+            font-family: ui-monospace, Consolas, monospace;
+            font-size: 0.85em;
+            cursor: pointer;
+        }
+        .tag:hover { background: #ffeb99; }
+
+        .recipients-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+        .recipients-head .select-buttons button {
+            background: none; border: none; padding: 0 4px; color: var(--accent); text-decoration: underline; cursor: pointer; font: inherit;
+        }
+        .recipient-list { list-style: none; margin: 10px 0 0; padding: 0; max-height: 460px; overflow-y: auto;
+                          border: 1px solid var(--border); border-radius: 8px; }
+        .recipient-list li + li { border-top: 1px solid var(--border); }
+        .recipient-list label { display: flex; gap: 10px; align-items: flex-start; padding: 8px 12px; cursor: pointer; }
+        .recipient-list label:hover { background: var(--surface-alt); }
+        .recipient-list input { margin-top: 0.35em; accent-color: var(--brand-navy); flex: none; }
+        .recipient-list .who { display: flex; flex-direction: column; min-width: 0; }
+        .recipient-list .who span { color: var(--text-secondary); font-size: 0.88em; overflow-wrap: anywhere; }
+
+        .actions { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-top: 20px; padding: 16px 20px; }
+        .actions .field { flex: 1 1 240px; }
+        .actions .field label { display: block; font-weight: 600; font-size: 0.9em; margin-bottom: 4px; }
+        .actions .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+        .actions .btn.gold { margin-left: auto; }
+
+        .preview { margin-top: 20px; }
+        .email-frame { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-top: 10px; }
+        .email-frame .headers { background: var(--surface-alt); padding: 10px 14px; font-size: 0.92em; }
+        .email-frame .headers div { margin: 2px 0; overflow-wrap: anywhere; }
+        .email-frame .headers span { color: var(--text-secondary); display: inline-block; min-width: 64px; }
+        .email-frame .body { white-space: pre-wrap; padding: 16px; font-family: var(--font-body); background: #ffffff; margin: 0; overflow-wrap: anywhere; }
+        .status-sent { color: #1e6b34; font-weight: 600; }
+        .status-failed { color: var(--danger); font-weight: 600; }
+    </style>
+</head>
+<body>
+    {% include "_nav.html" %}
+
+    <main id="main">
+        <h1 class="page-title">Email Alumni</h1>
+        <p class="lead">
+            Write one message and send each alumnus a personal copy. Tags such as <code>{first_name}</code> are
+            replaced with each person's own answer from the tracer study. Replies go to your email, {{ current_admin.email }}.
+        </p>
+        {% include "_flash.html" %}
+        {% include "_filters.html" %}
+
+        {% if not mail_ready %}
+        <p class="flash flash-info">
+            Email sending is not set up yet. You can write and preview messages, but <strong>Send</strong> stays off until
+            MAIL_SERVER, MAIL_USERNAME and MAIL_PASSWORD are set when starting the app.
+        </p>
+        {% endif %}
+
+        <form id="mailForm" method="POST" action="/admin/mail{{ '?' ~ filters.query if filters.query }}">
+            <div class="mail-grid">
+                <!-- ===================== COMPOSE ===================== -->
+                <div class="card compose">
+                    <h2>Message</h2>
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" value="{{ subject }}" required>
+
+                    <label for="body">Message</label>
+                    <textarea id="body" name="body" required>{{ body }}</textarea>
+
+                    <p class="hint">Click a tag to insert it where your cursor is:</p>
+                    <div class="tags">
+                        {% for tag, description in merge_fields.items() %}
+                        <button type="button" class="tag" data-tag="{{ '{' ~ tag ~ '}' }}" title="{{ description }}">{{ '{' ~ tag ~ '}' }}</button>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ===================== RECIPIENTS ===================== -->
+                <div class="card">
+                    <div class="recipients-head">
+                        <h2>Recipients</h2>
+                        {% if recipients %}
+                        <span class="select-buttons">
+                            <button type="button" data-select="all">Select all</button>
+                            <button type="button" data-select="none">Select none</button>
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="muted" style="margin: 0;">
+                        <strong id="selectedCount">{{ recipients|selectattr('id', 'in', selected)|list|length }}</strong>
+                        of {{ recipients|length }} selected
+                    </p>
+                    {% if recipients %}
+                    <ul class="recipient-list">
+                        {% for r in recipients %}
+                        <li>
+                            <label>
+                                <input type="checkbox" name="recipient" value="{{ r.id }}" {{ 'checked' if r.id in selected }}>
+                                <span class="who">
+                                    <strong>{{ r.fname }} {{ r.lname }}</strong>
+                                    <span>{{ r.email }}</span>
+                                    {# full program names get nicer capitals; old short codes like "BSIT" stay as they are #}
+                                    <span>{{ (r.program|program_name) if r.program and ' ' in r.program else (r.program or '') }}{{ ' · ' ~ r.year if r.year }}</span>
+                                </span>
+                            </label>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="muted">No alumni with an email address match this filter.</p>
+                    {% endif %}
+                    {% if skipped %}
+                    <p class="hint">{{ skipped }} matching response{{ 's' if skipped != 1 }} left out: no valid email address, or a repeat response from the same email.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- ===================== PREVIEW / SEND ===================== -->
+            <div class="card actions">
+                <div class="field">
+                    <label for="preview_id">Preview as</label>
+                    <select id="preview_id" name="preview_id">
+                        {% for r in recipients %}
+                        <option value="{{ r.id }}" {{ 'selected' if preview and preview.id == r.id }}>{{ r.fname }} {{ r.lname }} &lt;{{ r.email }}&gt;</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" name="action" value="preview" class="btn secondary">Preview</button>
+                <button type="submit" name="action" value="send" class="btn gold" id="sendButton" {{ 'disabled' if not mail_ready or not recipients }}>
+                    Send to <span id="sendCount">{{ recipients|selectattr('id', 'in', selected)|list|length }}</span> alumni
+                </button>
+            </div>
+        </form>
+
+        {% if preview %}
+        <section class="card preview" id="preview">
+            <h2 style="font-size: 1.15em;">Preview</h2>
+            <p class="muted" style="margin: 0;">This is exactly what this alumnus will receive.</p>
+            <div class="email-frame">
+                <div class="headers">
+                    <div><span>To:</span> {{ preview.to }}</div>
+                    <div><span>Reply-To:</span> {{ current_admin.email }}</div>
+                    <div><span>Subject:</span> <strong>{{ preview.subject }}</strong></div>
+                </div>
+                <pre class="body">{{ preview.body }}</pre>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- ===================== RECENTLY SENT ===================== -->
+        <section>
+            <h2>Recently Sent</h2>
+            {% if log %}
+            <div class="table-scroll">
+            <table class="summary">
+                <thead>
+                    <tr><th>Sent</th><th>By</th><th>To</th><th>Subject</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    {% for entry in log %}
+                    <tr>
+                        <td>{{ entry.sent_at }}</td>
+                        <td>{{ entry.sent_by }}</td>
+                        <td>{{ entry.recipient_name }}<br><span class="muted">{{ entry.recipient_email }}</span></td>
+                        <td>{{ entry.subject }}</td>
+                        <td>
+                            <span class="{{ 'status-sent' if entry.status == 'Sent' else 'status-failed' }}">{{ entry.status }}</span>
+                            {% if entry.error %}<br><span class="muted">{{ entry.error }}</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}
+            <p class="muted">No emails sent yet.</p>
+            {% endif %}
+        </section>
+    </main>
+    {% include "_footer.html" %}
+
+<script>
+(function () {
+  const form = document.getElementById('mailForm');
+  const boxes = Array.from(form.querySelectorAll('input[name="recipient"]'));
+  const subject = document.getElementById('subject');
+  const body = document.getElementById('body');
+  let lastField = body;
+
+  // Keep the "N selected" counts and the Preview-as list in step with the ticked boxes
+  function updateCount() {
+    const n = boxes.filter(b => b.checked).length;
+    document.getElementById('selectedCount').textContent = n;
+    document.getElementById('sendCount').textContent = n;
+  }
+  boxes.forEach(b => b.addEventListener('change', updateCount));
+  document.querySelectorAll('[data-select]').forEach(button => button.addEventListener('click', () => {
+    boxes.forEach(b => { b.checked = button.dataset.select === 'all'; });
+    updateCount();
+  }));
+
+  // Insert a {tag} at the cursor in the subject or message, whichever was used last
+  [subject, body].forEach(field => ['focus', 'click', 'keyup'].forEach(type =>
+    field.addEventListener(type, () => { lastField = field; })));
+  document.querySelectorAll('.tag').forEach(button => button.addEventListener('click', () => {
+    const field = lastField;
+    const start = field.selectionStart, end = field.selectionEnd;
+    field.value = field.value.slice(0, start) + button.dataset.tag + field.value.slice(end);
+    field.focus();
+    field.selectionStart = field.selectionEnd = start + button.dataset.tag.length;
+  }));
+
+  // Ask before sending, and stop a double click from sending twice
+  form.addEventListener('submit', event => {
+    if (event.submitter && event.submitter.value === 'send') {
+      const n = boxes.filter(b => b.checked).length;
+      if (!confirm('Send this email to ' + n + ' alumni? Each person receives their own copy.')) {
+        event.preventDefault();
+        return;
+      }
+      event.submitter.disabled = true;
+      event.submitter.textContent = 'Sending...';
+      // keep the action value even though the button is now disabled
+      const action = document.createElement('input');
+      action.type = 'hidden'; action.name = 'action'; action.value = 'send';
+      form.appendChild(action);
+    }
+  });
+
+  {% if preview %}document.getElementById('preview').scrollIntoView({ block: 'start' });{% endif %}
+})();
+</script>
+</body>
+</html>

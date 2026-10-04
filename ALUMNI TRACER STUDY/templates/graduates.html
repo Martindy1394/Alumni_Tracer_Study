@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graduates per Year | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .grad-form { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; }
+        .grad-form .field { display: flex; flex-direction: column; gap: 6px; }
+        .grad-form label { font-weight: 600; }
+        .grad-form input {
+            width: 180px;
+            padding: 8px 10px;
+            font-size: 1em;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    {% include "_nav.html" %}
+    {% from "_icons.html" import icon %}
+    {% from "_charts.html" import rate_bar %}
+
+    <main id="main">
+        <h1 class="page-title">Graduates per Year</h1>
+        <p class="muted">
+            Enter the total number of graduates for each year. The summary uses these totals to compute
+            the response rate, e.g. 30 responses out of 120 graduates of 2020 = 25.0%.
+        </p>
+        {% include "_flash.html" %}
+
+        <!-- ===================== ADD / UPDATE A YEAR ===================== -->
+        <form class="card grad-form" method="POST" action="/admin/graduates" id="grad-form">
+            <input type="hidden" name="action" value="save">
+            <div class="field">
+                <label for="year">Year graduated</label>
+                <input type="text" id="year" name="year" value="{{ edit_year }}" inputmode="numeric"
+                       pattern="[0-9]{4}" maxlength="4" placeholder="e.g. 2020" title="Enter a 4-digit year" required>
+            </div>
+            <div class="field">
+                <label for="total">Total number of graduates</label>
+                <input type="number" id="total" name="total" value="{{ edit_total }}" min="1" step="1"
+                       placeholder="e.g. 120" required>
+            </div>
+            <button type="submit" class="btn">Save</button>
+        </form>
+        <p class="hint">Saving a year that already has a total replaces the old number.</p>
+
+        <!-- ===================== ENTERED YEARS ===================== -->
+        <section>
+            <h2>Years</h2>
+            {% if year_rows %}
+            <div class="table-scroll">
+            <table class="summary">
+                <thead>
+                    <tr>
+                        <th>Year graduated</th>
+                        <th>Total graduates</th>
+                        <th>Responses</th>
+                        <th>Response rate</th>
+                        <th>Last updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for y in year_rows %}
+                    <tr>
+                        <td>{{ y.year }}</td>
+                        <td class="num">{{ y.graduates or '' }}{% if not y.graduates %}<span class="muted">Not entered</span>{% endif %}</td>
+                        <td class="num">{{ y.responses }}</td>
+                        <td>
+                            {{ rate_bar(y.rate) }}
+                            {% if y.rate is not none and y.rate > 100 %}
+                            <span class="warn-note">More responses than graduates &mdash; please check the total.</span>
+                            {% endif %}
+                        </td>
+                        <td class="muted">{% if y.updated_at %}{{ y.updated_at }}<br>by {{ y.updated_by }}{% endif %}</td>
+                        <td>
+                            <div class="row-actions">
+                                {% if y.graduates %}
+                                <a class="action-btn primary" href="/admin/graduates?year={{ y.year }}#grad-form"
+                                   aria-label="Edit the total for {{ y.year }}">{{ icon('edit') }}Edit</a>
+                                {% else %}
+                                <a class="action-btn primary" href="/admin/graduates?year={{ y.year }}#grad-form"
+                                   aria-label="Enter the total for {{ y.year }}">{{ icon('add') }}Enter total</a>
+                                {% endif %}
+                                {% if y.graduates %}
+                                <form method="POST" action="/admin/graduates"
+                                      onsubmit="return confirm('Remove the graduate total for {{ y.year }}?');">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="year" value="{{ y.year }}">
+                                    <button type="submit" class="action-btn danger" aria-label="Remove the total for {{ y.year }}">{{ icon('delete') }}Remove</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}
+            <p class="muted">No years yet. Enter the first one above.</p>
+            {% endif %}
+        </section>
+    </main>
+    {% include "_footer.html" %}
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    {% include "_nav.html" %}
+
+    <main id="main">
+        <form class="form-card card" method="POST" action="/admin/login">
+            <h1 class="page-title">Admin Login</h1>
+            <p class="muted">For the system administrator and the registered college coordinators of the Alumni Affairs and Relations Office.</p>
+            {% include "_flash.html" %}
+            {% if error %}
+            <p class="flash flash-error" role="alert">{{ error }}</p>
+            {% endif %}
+            <input type="hidden" name="next" value="{{ next_url }}">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="{{ email }}" autocomplete="username" required autofocus>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" autocomplete="current-password" required>
+            <button type="submit" class="btn">Log in</button>
+        </form>
+    </main>
+    {% include "_footer.html" %}
+</body>
+</html>

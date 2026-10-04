@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'Edit Event' if event else 'New Event' }} | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .event-form { max-width: 760px; margin: 0 auto; }
+        .event-form label { display: block; font-weight: 600; margin: 18px 0 6px; }
+        .event-form input[type="text"], .event-form input[type="date"], .event-form input[type="url"], .event-form textarea {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 1em;
+            border: 1px solid #c9cee3;
+            border-radius: 8px;
+            background: #ffffff;
+            color: var(--text-primary);
+        }
+        .event-form textarea { min-height: 220px; resize: vertical; line-height: 1.6; }
+        .event-form input:focus, .event-form textarea:focus {
+            outline: none; border-color: var(--brand-navy); box-shadow: 0 0 0 3px rgba(13, 27, 142, 0.15);
+        }
+        .two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+        @media (max-width: 600px) { .two { grid-template-columns: 1fr; } }
+        .image-box { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+        .image-box img { width: 280px; max-width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px;
+                         border: 1px solid var(--border); background: var(--surface-alt); }
+        .check { display: flex !important; gap: 8px; align-items: center; font-weight: 600; }
+        .check input { width: 18px; height: 18px; accent-color: var(--brand-navy); }
+        .form-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; margin-top: 24px;
+                        padding-top: 16px; border-top: 1px solid var(--border); }
+        .req { color: var(--brand-red); }
+    </style>
+</head>
+<body>
+    {% include "_nav.html" %}
+
+    <main id="main">
+        <form class="event-form card" method="POST" enctype="multipart/form-data"
+              action="{{ '/admin/events/' ~ event.id ~ '/edit' if event else '/admin/events/new' }}">
+            <a class="back-link" href="/admin/events">&larr; Back to events</a>
+            <h1 class="page-title" style="margin-top: 10px;">{{ 'Edit event' if event else 'New event' }}</h1>
+            <p class="muted">Visitors will see this event labeled as posted by the <strong>{{ current_admin.college_name }}</strong>.</p>
+            {% if error %}<p class="flash flash-error" role="alert">{{ error }}</p>{% endif %}
+
+            <label for="title">Title <span class="req">*</span></label>
+            <input type="text" id="title" name="title" value="{{ values.title }}" maxlength="150" required
+                   placeholder="e.g. CCI Grand Alumni Homecoming 2026">
+
+            <div class="two">
+                <div>
+                    <label for="event_date">Date <span class="req">*</span></label>
+                    <input type="date" id="event_date" name="event_date" value="{{ values.event_date }}" required>
+                </div>
+                <div>
+                    <label for="event_time">Time</label>
+                    <input type="text" id="event_time" name="event_time" value="{{ values.event_time or '' }}"
+                           placeholder="e.g. 8:00 AM – 5:00 PM">
+                </div>
+            </div>
+
+            <label for="location">Venue</label>
+            <input type="text" id="location" name="location" value="{{ values.location or '' }}"
+                   placeholder="e.g. ISAT U Gymnasium, La Paz, Iloilo City">
+
+            <label for="description">Description <span class="req">*</span></label>
+            <textarea id="description" name="description" required
+                      placeholder="What the event is about, who can join, what to bring...">{{ values.description }}</textarea>
+            <p class="hint">Line breaks are kept as you type them.</p>
+
+            <label for="link">Registration or information link</label>
+            <input type="url" id="link" name="link" value="{{ values.link or '' }}" placeholder="https://forms.gle/...">
+            <p class="hint">Optional. Shown as a button on the event page until the event date passes.</p>
+
+            <label for="image">Picture</label>
+            <div class="image-box">
+                <img id="imagePreview" src="{{ '/static/event_images/' ~ values.image if values.image else '' }}" alt="Picture preview"
+                     {{ '' if values.image else 'hidden' }}>
+                <div>
+                    <input type="file" id="image" name="image" accept="image/png,image/jpeg,image/gif,image/webp">
+                    <p class="hint">PNG, JPG, GIF or WebP, up to 10 MB. Large pictures are resized automatically.<br>
+                        A wide picture (16:9) looks best on the event cards.</p>
+                    {% if event and event.image %}
+                    <label class="check"><input type="checkbox" name="remove_image" value="1"> Remove the current picture</label>
+                    {% endif %}
+                </div>
+            </div>
+
+            <label class="check" style="margin-top: 22px;">
+                <input type="checkbox" name="published" value="1" {{ 'checked' if values.published }}>
+                Publish on the landing page
+            </label>
+            <p class="hint">Untick to keep it as a draft that only admins can see.</p>
+
+            <div class="form-actions">
+                <a class="btn secondary" href="/admin/events">Cancel</a>
+                <button type="submit" class="btn gold">{{ 'Save changes' if event else 'Post event' }}</button>
+            </div>
+        </form>
+    </main>
+    {% include "_footer.html" %}
+
+<script>
+  // Show the chosen picture before saving
+  document.getElementById('image').addEventListener('change', function () {
+    // The server accepts files up to 10 MB
+    const tooBig = this.files[0] && this.files[0].size > 10 * 1024 * 1024;
+    this.setCustomValidity(tooBig ? 'This picture is larger than 10 MB. Please choose a smaller one.' : '');
+    this.reportValidity();
+    const preview = document.getElementById('imagePreview');
+    if (this.files && this.files[0]) {
+      preview.src = URL.createObjectURL(this.files[0]);
+      preview.hidden = false;
+    }
+  });
+</script>
+</body>
+</html>

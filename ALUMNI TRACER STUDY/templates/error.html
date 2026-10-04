@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ heading }} | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .error-box { max-width: 620px; margin: 48px auto; text-align: center; padding: 36px 28px; }
+        .error-code {
+            display: inline-grid;
+            place-items: center;
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            background: var(--brand-gold-soft);
+            border: 3px solid var(--brand-gold);
+            color: var(--brand-navy-dark);
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.5em;
+        }
+        .error-box h1 { margin: 18px 0 8px; }
+        .error-box .lead { margin: 0 auto; }
+        .error-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 26px; }
+    </style>
+</head>
+<body>
+    {% include "_nav.html" %}
+
+    <main id="main">
+        <div class="card error-box">
+            <span class="error-code">{{ code }}</span>
+            <h1>{{ heading }}</h1>
+            <p class="lead">{{ message }}</p>
+            <div class="error-actions">
+                <a class="btn secondary" href="javascript:history.back()">&larr; Go back</a>
+                <a class="btn" href="{{ '/admin' if current_admin else '/' }}">{{ 'Admin summary' if current_admin else 'Go to Home' }}</a>
+            </div>
+        </div>
+    </main>
+    {% include "_footer.html" %}
+</body>
+</html>

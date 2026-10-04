@@ -1,0 +1,31 @@
+{# Chart building blocks. Use in a page with:  {% from "_charts.html" import bar_chart, rate_bar %} #}
+
+{# Horizontal bar chart: rows is a list of (label, count); total is used for the percentage.
+   Bars are scaled to the largest count. #}
+{% macro bar_chart(rows, total) %}
+    {% set top = rows|map(attribute=1)|max if rows else 0 %}
+    <div class="bars">
+        {% for label, count in rows %}
+        {% set pct = (count / total * 100) if total else 0 %}
+        <div class="bar-row" title="{{ label }}: {{ count }} ({{ '%.1f'|format(pct) }}%)">
+            <div class="name">{{ label }}</div>
+            <div class="bar-track">
+                <div class="bar-fill{{ ' zero' if count == 0 }}" style="width: {{ (count / top * 100) if top else 0 }}%"></div>
+            </div>
+            <div class="count"><strong>{{ count }}</strong> &middot; {{ '%.1f'|format(pct) }}%</div>
+        </div>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{# A percentage on a fixed 0-100% track, for response rates. rate is a number or None. #}
+{% macro rate_bar(rate) %}
+    {% if rate is none %}
+    <span class="muted">&mdash;</span>
+    {% else %}
+    <div class="rate" title="{{ '%.1f'|format(rate) }}%">
+        <div class="rate-track"><div class="rate-fill" style="width: {{ [rate, 100]|min }}%"></div></div>
+        <span class="rate-value">{{ '%.1f'|format(rate) }}%</span>
+    </div>
+    {% endif %}
+{% endmacro %}

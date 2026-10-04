@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Events | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .events-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+        .thumb { width: 96px; height: 54px; object-fit: cover; border-radius: 6px; display: block; background: var(--surface-alt); }
+        .thumb.none { display: grid; place-items: center; color: var(--text-secondary); font-size: 0.75em; }
+        .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.8em; font-weight: 600; white-space: nowrap; }
+        .pill.live { background: #e6f4ea; color: #1e6b34; }
+        .pill.draft { background: var(--surface-alt); color: var(--text-secondary); }
+        .pill.past { background: #fdf0ef; color: var(--danger); }
+        table.summary td { vertical-align: middle; }
+    </style>
+</head>
+<body>
+    {% include "_nav.html" %}
+    {% from "_icons.html" import icon %}
+
+    <main id="main">
+        <div class="events-head">
+            <div>
+                <h1 class="page-title">Events</h1>
+                <p class="muted" style="margin: 0;">Published upcoming events appear on the landing page and the public Events page.</p>
+            </div>
+            <a class="btn gold" href="/admin/events/new">{{ icon('add') }}New event</a>
+        </div>
+        {% include "_flash.html" %}
+
+        <section style="margin-top: 24px;">
+            {% if events %}
+            <div class="table-scroll">
+            <table class="summary">
+                <thead>
+                    <tr><th>Picture</th><th>Event</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    {% for e in events %}
+                    <tr>
+                        <td>
+                            {% if e.image %}<img class="thumb" src="/static/event_images/{{ e.image }}" alt="">
+                            {% else %}<span class="thumb none">No picture</span>{% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ e.title }}</strong>
+                            {% if e.location %}<br><span class="muted">{{ e.location }}</span>{% endif %}
+                        </td>
+                        <td>{{ e.event_date|long_date }}{% if e.event_time %}<br><span class="muted">{{ e.event_time }}</span>{% endif %}</td>
+                        <td>
+                            {% if not e.published %}<span class="pill draft">Draft</span>
+                            {% elif e.event_date < today %}<span class="pill past">Past</span>
+                            {% else %}<span class="pill live">Published</span>{% endif %}
+                        </td>
+                        <td>
+                            <div class="row-actions">
+                                <a class="action-btn primary" href="/admin/events/{{ e.id }}/edit"
+                                   aria-label="Edit {{ e.title }}">{{ icon('edit') }}Edit</a>
+                                {% if e.published %}
+                                <a class="action-btn" href="/events/{{ e.id }}" target="_blank" rel="noopener"
+                                   title="Opens the public page in a new tab" aria-label="View {{ e.title }} (opens in a new tab)">{{ icon('view') }}View</a>
+                                {% endif %}
+                                <form method="POST" action="/admin/events/{{ e.id }}/delete"
+                                      data-confirm="Delete “{{ e.title }}”? This cannot be undone."
+                                      onsubmit="return confirm(this.dataset.confirm);">
+                                    <button type="submit" class="action-btn danger" aria-label="Delete {{ e.title }}">{{ icon('delete') }}Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}
+            <div class="card">
+                <p class="muted">No events yet. Click <strong>New event</strong> to post your first one.</p>
+            </div>
+            {% endif %}
+        </section>
+    </main>
+    {% include "_footer.html" %}
+</body>
+</html>

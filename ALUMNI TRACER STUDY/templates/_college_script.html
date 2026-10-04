@@ -1,0 +1,52 @@
+{# Survey forms: after the respondent picks a college, list that college's programs (kept on the admin Programs page).
+   Add it after the form with:  {% include "_college_script.html" %}
+   Needs `survey_colleges` from the route, and in the form: <select id="college">, <p id="programHint">,
+   <div id="programChoices">. Optional: #sectionCCI (the CCI section choices) and #sectionOther (typed section). #}
+<script>
+(function () {
+  const colleges = {{ survey_colleges|tojson }};
+  const select = document.getElementById('college');
+  const choices = document.getElementById('programChoices');
+  const hint = document.getElementById('programHint');
+
+  // Hidden blocks are also disabled, so they are skipped by validation and not sent to the server
+  function show(block, on) {
+    if (!block) return;
+    block.hidden = !on;
+    block.querySelectorAll('input').forEach(input => input.disabled = !on);
+  }
+
+  function sync() {
+    const college = colleges.find(c => c.name === select.value);
+    choices.textContent = '';
+    hint.hidden = Boolean(college);
+    if (college && college.programs.length) {
+      for (const program of college.programs) {
+        const label = document.createElement('label');
+        label.className = 'choice';
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'program';
+        radio.value = program;
+        radio.required = true;
+        label.append(radio, ' ' + program);
+        choices.append(label);
+      }
+    } else if (college) {
+      // This college has not listed its programs yet: let the respondent type the course
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.name = 'program';
+      input.required = true;
+      input.placeholder = 'Type your course (please do not abbreviate)';
+      input.setAttribute('aria-label', 'Course');
+      choices.append(input);
+    }
+    show(document.getElementById('sectionCCI'), Boolean(college) && college.code === 'CCI');
+    show(document.getElementById('sectionOther'), Boolean(college) && college.code !== 'CCI');
+  }
+
+  select.addEventListener('change', sync);
+  sync();
+})();
+</script>

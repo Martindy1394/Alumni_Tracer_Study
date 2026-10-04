@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracer Study Summary | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    {% include "_nav.html" %}
+    {% from "_charts.html" import bar_chart, rate_bar %}
+
+    <main id="main">
+        <h1 class="page-title">Tracer Study Summary</h1>
+        {% include "_flash.html" %}
+        {% include "_filters.html" %}
+        <p class="muted">
+            {% if latest %}Latest response{{ ' in this selection' if filters.active }}: {{ latest }}
+            {% else %}No responses{{ ' match this filter' if filters.active else ' yet' }}.{% endif %}
+        </p>
+
+        <!-- ===================== HEADLINE NUMBERS ===================== -->
+        <div class="tiles">
+            <div class="card tile">
+                <div class="value">{{ total }}</div>
+                <div class="label">Total responses</div>
+            </div>
+            <div class="card tile">
+                <div class="value">{{ employed_total }}</div>
+                <div class="label">Currently employed</div>
+            </div>
+            <div class="card tile">
+                <div class="value">{{ '%.1f'|format(employed_total / total * 100) if total else '0.0' }}%</div>
+                <div class="label">Employment rate</div>
+            </div>
+            <div class="card tile">
+                <div class="value">{{ '%.1f'|format(overall.rate) ~ '%' if overall.rate is not none else '—' }}</div>
+                <div class="label">
+                    {% if filters.program %}Response rate (not available per program)
+                    {% elif overall.graduates %}Response rate ({{ overall.responses }} of {{ overall.graduates }} graduates)
+                    {% else %}Response rate (enter graduate counts){% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================== RESPONSES PER PROGRAM ===================== -->
+        <section>
+            <h2>Responses per Program</h2>
+            {{ bar_chart(by_program|map(attribute='chart_row')|list, total) }}
+
+            <div class="table-scroll">
+            <table class="summary">
+                <thead>
+                    <tr>
+                        <th>Program</th>
+                        <th>Responses</th>
+                        <th>Employed</th>
+                        <th>Unemployed / Never employed</th>
+                        <th>Employment rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in by_program %}
+                    <tr>
+                        <td>{{ p.name|program_name }}</td>
+                        <td class="num">{{ p.responses }}</td>
+                        <td class="num">{{ p.employed }}</td>
+                        <td class="num">{{ p.not_employed }}</td>
+                        <td class="num">{{ '%.1f'|format(p.employed / p.responses * 100) ~ '%' if p.responses else '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </section>
+
+        <!-- ===================== RESPONSE RATE PER YEAR GRADUATED ===================== -->
+        <section id="years">
+            <h2>Response Rate by Year Graduated</h2>
+            <p class="muted">
+                Responses compared with the total number of graduates of each year.
+                <a href="/admin/graduates">Enter or update the number of graduates</a>
+            </p>
+            {% if filters.program %}
+            <p class="flash flash-info">
+                The graduate totals cover all programs, so response rates are not shown while a program is selected.
+                The Responses column shows {{ filters.program }} only.
+            </p>
+            {% endif %}
+
+            {% if year_rows %}
+            <div class="table-scroll">
+            <table class="summary">
+                <thead>
+                    <tr>
+                        <th>Year graduated</th>
+                        <th>Total graduates</th>
+                        <th>Responses</th>
+                        <th>Response rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for y in year_rows %}
+                    <tr>
+                        <td>{{ y.year }}</td>
+                        <td class="num">
+                            {% if y.graduates %}{{ y.graduates }}
+                            {% else %}<a href="/admin/graduates?year={{ y.year }}">Enter total</a>{% endif %}
+                        </td>
+                        <td class="num">{{ y.responses }}</td>
+                        <td>
+                            {{ rate_bar(y.rate) }}
+                            {% if y.rate is not none and y.rate > 100 %}
+                            <span class="warn-note">More responses than graduates &mdash; please check the total.</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                {% if overall.graduates %}
+                <tfoot>
+                    <tr>
+                        <td>All years with a total</td>
+                        <td class="num">{{ overall.graduates }}</td>
+                        <td class="num">{{ overall.responses }}</td>
+                        <td>{{ rate_bar(overall.rate) }}</td>
+                    </tr>
+                </tfoot>
+                {% endif %}
+            </table>
+            </div>
+            {% else %}
+            <p class="muted">No responses or graduate counts yet.</p>
+            {% endif %}
+            {% if year_unspecified %}
+            <p class="hint">{{ year_unspecified }} response{{ 's' if year_unspecified != 1 }} did not give a year graduated and {{ 'are' if year_unspecified != 1 else 'is' }} not included above.</p>
+            {% endif %}
+        </section>
+
+        <!-- ===================== BY EMPLOYMENT STATUS ===================== -->
+        <section>
+            <h2>Current Employment</h2>
+            {% if by_employment %}{{ bar_chart(by_employment, total) }}{% else %}<p class="muted">No data yet.</p>{% endif %}
+        </section>
+
+        <section class="page-actions">
+            {% set qs = '?' ~ filters.query if filters.query else '' %}
+            <a class="btn secondary" href="/admin/records{{ qs }}">View {{ 'these' if filters.active else 'all' }} responses</a>
+            <a class="btn" href="/admin/mail{{ qs }}">Email {{ 'these' if filters.active else 'the' }} alumni</a>
+            <a class="btn gold" href="/admin/records/export{{ qs }}">Download alumni responses (Excel)</a>
+        </section>
+    </main>
+    {% include "_footer.html" %}
+</body>
+</html>

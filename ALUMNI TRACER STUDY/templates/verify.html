@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Password Change | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .code-timer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 14px 0 0;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface-alt);
+            font-weight: 600;
+        }
+        .code-timer .time { font-family: var(--font-heading); font-size: 1.3em; font-variant-numeric: tabular-nums; color: var(--brand-navy-dark); }
+        .code-timer.low { background: #fdf0ef; border-color: #f1c7c5; }
+        .code-timer.low .time { color: var(--danger); }
+    </style>
+</head>
+<body>
+    {% include "_nav.html" %}
+
+    <main id="main">
+        <form class="form-card card" method="POST" action="/admin/settings/verify">
+            <h1 class="page-title">Check your email</h1>
+            {% include "_flash.html" %}
+            <p class="muted">
+                We sent a 6-digit verification code to <strong>{{ masked_email }}</strong>.
+                Enter it below to finish changing your password.
+            </p>
+            <!-- Counts down to the moment the code stops working -->
+            <p class="code-timer" id="codeTimer" data-seconds="{{ seconds_left }}" role="timer">
+                <span id="timerLabel">Code expires in</span>
+                <span class="time" id="timerTime">{{ '%d:%02d'|format(seconds_left // 60, seconds_left % 60) }}</span>
+            </p>
+            {% if error %}
+            <p class="flash flash-error" role="alert">{{ error }}</p>
+            {% endif %}
+
+            <label for="code">Verification code</label>
+            <input type="text" id="code" name="code" class="code-input" inputmode="numeric" pattern="[0-9]{6}"
+                   maxlength="6" autocomplete="one-time-code" title="Enter the 6-digit code" required autofocus>
+
+            <button type="submit" name="action" value="verify" class="btn" id="verifyButton">Verify and change password</button>
+            <button type="submit" name="action" value="cancel" class="btn secondary" formnovalidate>Cancel</button>
+        </form>
+    </main>
+    <script>
+      // Countdown until the verification code expires; once it does, the code can no longer be used
+      (function () {
+        const timer = document.getElementById('codeTimer');
+        const time = document.getElementById('timerTime');
+        const expiresAt = Date.now() + Number(timer.dataset.seconds) * 1000;
+        function tick() {
+          const left = Math.max(0, Math.round((expiresAt - Date.now()) / 1000));
+          time.textContent = Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0');
+          timer.classList.toggle('low', left <= 60);
+          if (left === 0) {
+            clearInterval(interval);
+            document.getElementById('timerLabel').textContent = 'The code has expired. Cancel and start again.';
+            time.textContent = '';
+            document.getElementById('verifyButton').disabled = true;
+            document.getElementById('code').disabled = true;
+          }
+        }
+        const interval = setInterval(tick, 1000);
+        tick();
+      })();
+    </script>
+    {% include "_footer.html" %}
+</body>
+</html>

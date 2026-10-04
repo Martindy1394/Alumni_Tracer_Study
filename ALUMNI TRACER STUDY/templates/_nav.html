@@ -1,0 +1,125 @@
+{# Shared header and navigation bar. Add it to a page with:  {% include "_nav.html" %}
+   The whole header stays fixed at the top of the screen at full size while the page scrolls.
+   On phones the links fold into a "Menu" button so the main action stays visible. #}
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header" id="siteHeader">
+<header class="brand-bar">
+    <div class="inner">
+        <img class="logo" src="/static/images/isatu-logo.png" alt="Iloilo Science and Technology University seal">
+        <a class="brand-text" href="/">
+            <span class="uni">Iloilo Science and Technology University</span>
+            <span class="office">Alumni Affairs and Relations</span>
+            {# Logged in: the college whose data is on screen. Visitors see the home college of the site.
+               A page can leave the line out with:  {% with hide_college = true %}{% include "_nav.html" %}{% endwith %} #}
+            {% if not hide_college %}
+            <span class="college">{{ current_admin.college_name if current_admin else 'College of Computing and Informatics' }}</span>
+            {% endif %}
+        </a>
+        <img class="logo" src="/static/images/aar-logo.png" alt="CCI Alumni Affairs and Relations logo">
+    </div>
+</header>
+
+<nav class="site-nav" id="siteNav" aria-label="Main">
+    <div class="inner">
+        <button type="button" class="menu-toggle" aria-expanded="false" aria-controls="navLinks">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                <path class="icon-open" d="M4 7h16M4 12h16M4 17h16"/>
+                <path class="icon-close" d="M6 6l12 12M18 6L6 18"/>
+            </svg>
+            Menu
+        </button>
+        {% if current_admin %}
+        {# Admin view: no "Participate" button; profile menu with Settings and Log out #}
+        <div class="links" id="navLinks">
+            <a href="/admin" class="{{ 'active' if request.path == '/admin' }}">Summary</a>
+            <a href="/admin/records" class="{{ 'active' if request.path == '/admin/records' }}">All Responses</a>
+            <a href="/admin/graduates" class="{{ 'active' if request.path == '/admin/graduates' }}">Graduates</a>
+            <a href="/admin/programs" class="{{ 'active' if request.path == '/admin/programs' }}">Programs</a>
+            <a href="/admin/mail" class="{{ 'active' if request.path == '/admin/mail' }}">Email Alumni</a>
+            <a href="/admin/events" class="{{ 'active' if request.path.startswith('/admin/events') }}">Events</a>
+            {# Only the system administrator manages the coordinators' accounts #}
+            {% if current_admin.is_admin %}
+            <a href="/admin/coordinators" class="{{ 'active' if request.path.startswith('/admin/coordinators') }}">Coordinators</a>
+            {% endif %}
+        </div>
+        <div class="links right">
+            {% if not current_admin.is_admin %}
+            <span class="college-tag" title="{{ current_admin.college_name }}">{{ current_admin.college }}</span>
+            {% endif %}
+            <details class="profile">
+                <summary aria-label="Profile menu">
+                    <span class="avatar">{{ current_admin.initials }}</span>
+                    <span class="profile-name">{{ current_admin.full_name }}</span>
+                </summary>
+                <div class="menu">
+                    <div class="who">
+                        <strong>{{ current_admin.full_name }}</strong>
+                        <span>{{ current_admin.email }}</span>
+                        <span>{{ current_admin.role_label }}{{ ' · ' ~ current_admin.college if not current_admin.is_admin }}</span>
+                    </div>
+                    {# The system administrator picks which college to look at; a coordinator always sees their own #}
+                    {% if current_admin.is_admin %}
+                    <form class="college-list" method="POST" action="/admin/college">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <span class="menu-label">Viewing college</span>
+                        {% for code, name in colleges %}
+                        <button type="submit" name="college" value="{{ code }}" title="{{ name }}"
+                                class="{{ 'active' if code == current_admin.college }}"
+                                {{ 'aria-current="true"' if code == current_admin.college }}>{{ code }}</button>
+                        {% endfor %}
+                    </form>
+                    {% endif %}
+                    <a href="/admin/settings" class="{{ 'active' if request.path.startswith('/admin/settings') }}">Settings</a>
+                    <a href="/admin/logout">Log out</a>
+                </div>
+            </details>
+        </div>
+        {% else %}
+        <div class="links" id="navLinks">
+            <a href="/" class="{{ 'active' if request.path == '/' }}">Home</a>
+            <a href="/events" class="{{ 'active' if request.path.startswith('/events') }}">Events</a>
+            <a href="/#programs">Programs</a>
+            {# Colleges: jumps to that college's degree programs on the home page #}
+            <details class="nav-drop">
+                <summary>Colleges
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                </summary>
+                <div class="menu">
+                    {% for code, name in colleges %}
+                    <a href="/#college-{{ code|lower }}">
+                        {% if code|college_logo %}<img src="{{ code|college_logo }}" alt="">{% endif %}
+                        {{ name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </details>
+            <a href="/#ambassadors">Alumni Ambassadors</a>
+            <a href="/admin" class="{{ 'active' if request.path.startswith('/admin') }}">Admin</a>
+        </div>
+        <div class="links right">
+            <a href="/survey" class="cta {{ 'active' if request.path.startswith('/survey') }}">
+                Participate<span class="cta-long"> in the Tracer Study</span>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</nav>
+</div>
+<script>
+  // Phones: open/close the folded menu; close it again after choosing a link or tapping outside
+  (function () {
+    const nav = document.getElementById('siteNav');
+    const toggle = nav.querySelector('.menu-toggle');
+    const setOpen = open => { nav.classList.toggle('open', open); toggle.setAttribute('aria-expanded', open); };
+    toggle.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
+    // Dropdowns in the bar (Colleges, profile): close after choosing, on a click elsewhere, or with Escape
+    const drops = nav.querySelectorAll('details');
+    const closeDrops = except => drops.forEach(d => { if (d !== except) d.open = false; });
+    nav.querySelectorAll('#navLinks a').forEach(a => a.addEventListener('click', () => { setOpen(false); closeDrops(); }));
+    document.addEventListener('click', e => {
+      if (!nav.contains(e.target)) setOpen(false);
+      closeDrops(e.target.closest ? e.target.closest('details') : null);
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { setOpen(false); closeDrops(); } });
+  })();
+</script>

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAT U Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* Welcome banner: text on the left, alumnus illustration on the right */
+        .hero {
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            align-items: end;
+            min-height: 440px;
+            background:
+                radial-gradient(circle at 85% 20%, rgba(248, 200, 0, 0.18), transparent 45%),
+                linear-gradient(135deg, #ffffff 0%, #f2f4fd 55%, var(--brand-gold-soft) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+        .hero::before {
+            /* gold accent stripe along the left edge */
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 6px;
+            background: linear-gradient(var(--brand-gold), var(--brand-navy));
+        }
+        .hero-text { padding: 44px 8px 44px 44px; align-self: center; }
+        .eyebrow {
+            display: inline-block;
+            font-family: var(--font-heading);
+            font-size: 0.8em;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--brand-navy);
+            background: var(--brand-gold-soft);
+            border: 1px solid #f3df8a;
+            border-radius: 999px;
+            padding: 4px 12px;
+        }
+        .hero h1 { margin: 14px 0 10px; font-size: 2.4em; line-height: 1.15; }
+        .hero h1 .accent { color: var(--brand-navy); }
+        .hero .actions { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 10px; }
+        .jump-links { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.95em; }
+        .jump-links a { color: var(--text-secondary); text-decoration: none; border-bottom: 1px dotted currentColor; }
+        .jump-links a:hover { color: var(--brand-navy); }
+        .hero-art { position: relative; align-self: stretch; display: flex; align-items: flex-end; justify-content: center; }
+        .hero-art::before {
+            /* gold circle behind the figure */
+            content: "";
+            position: absolute;
+            width: 78%;
+            aspect-ratio: 1;
+            bottom: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ffe066, var(--brand-gold));
+            box-shadow: 0 0 0 14px rgba(248, 200, 0, 0.15);
+        }
+        .hero-art img { position: relative; display: block; width: 100%; max-width: 400px; height: auto; }
+
+        @media (max-width: 760px) {
+            .hero { grid-template-columns: 1fr; min-height: 0; }
+            .hero-text { padding: 32px 22px 8px 26px; }
+            .hero h1 { font-size: 1.8em; }
+            .hero-art { height: 300px; }
+            .hero-art img { width: auto; height: 100%; }
+            .hero-art::before { width: 240px; }
+        }
+
+        .college-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin: 32px 0 12px; padding: 8px 14px; border-left: 4px solid var(--brand-gold);
+                           background: var(--surface-alt); border-radius: 0 8px 8px 0; font-size: 1.15em; }
+        .college-heading img { width: 56px; height: 56px; object-fit: contain; flex: none; }
+        .college-heading span { font-family: var(--font-body); font-size: 0.75em; font-weight: 600;
+                                color: var(--text-secondary); white-space: nowrap; }
+
+        .section-intro { margin-top: -4px; }
+        #programs .cards { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+        /* Picture at the top of each program card (from the office's Programs slide) */
+        .program-icon {
+            height: 96px;
+            margin: -2px 0 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #ffffff;
+        }
+        .program-icon img { max-height: 88px; max-width: 100%; width: auto; object-fit: contain; }
+        .card .tagline { font-style: italic; margin-bottom: 6px; }
+        .card a.card-link { display: inline-block; margin-top: 10px; font-weight: 600; }
+
+        /* Alumni Responsibility: activities list beside the SUC Leveling explainer */
+        .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 12px; }
+        .activity-list { margin: 8px 0 0; padding-left: 20px; }
+        .activity-list li { margin: 4px 0; }
+        .activity-list ul { margin: 4px 0; padding-left: 20px; color: var(--text-secondary); }
+        .kra {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-left: 4px solid var(--accent);
+            background: var(--surface-alt);
+            border-radius: 0 6px 6px 0;
+        }
+        .kra p { margin: 2px 0; color: var(--text-primary); }
+        .kra .item { font-weight: 700; color: var(--danger); }
+        .source { font-size: 0.85em; margin-top: 10px; }
+
+        /* Alumni Ambassadors */
+        .advocacy { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 12px;
+                    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+        .advocacy li { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+        .advocacy strong { display: block; font-size: 1.05em; color: var(--accent); }
+        .advocacy span { color: var(--text-secondary); }
+
+        .program-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px;
+                        grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); }
+        .program-list li {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--brand-gold);
+            border-radius: 10px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+        }
+        .program-code {
+            flex: none;
+            width: 96px;   /* same width for every code so the titles line up */
+            padding: 6px 4px;
+            border-radius: 8px;
+            background: var(--brand-navy);
+            color: #ffffff;
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 0.85em;
+            text-align: center;
+            letter-spacing: 0.03em;
+        }
+        .program-list h3 { margin: 0 0 4px; font-size: 1.02em; }
+        .program-list p { margin: 0; color: var(--text-secondary); font-size: 0.95em; }
+        .program-list p.careers { margin-top: 8px; font-size: 0.88em; }
+        .program-list p.careers strong { color: var(--brand-navy); }
+        @media (max-width: 480px) {
+            .program-list li { flex-direction: column; gap: 8px; }
+        }
+        .contact dt { font-weight: 600; margin-top: 10px; }
+        .contact dd { margin: 0; color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    {# The landing page is for every college, so the header does not name one #}
+    {% with hide_college = true %}{% include "_nav.html" %}{% endwith %}
+    {% from "_event_card.html" import event_card %}
+
+    <main id="main">
+        <!-- ===================== WELCOME ===================== -->
+        <div class="hero">
+          <div class="hero-text">
+            <span class="eyebrow">Iloilo Science and Technology University</span>
+            <h1>Welcome home, <span class="accent">ISAT U Alumni!</span></h1>
+            <p class="lead">
+                The Iloilo Science and Technology University (ISAT U) is honored to have been a part of your
+                journey toward achieving your professional goals. Though you may have moved beyond the halls of
+                the University, ISAT U remains committed to supporting the growth and success of its alumni.
+            </p>
+            <div class="actions">
+                <a class="btn gold" href="/survey">Participate in the Tracer Study</a>
+                <a class="btn secondary" href="#programs">See our programs</a>
+            </div>
+            <nav class="jump-links" aria-label="On this page">
+                {% if events %}<a href="#events">Upcoming Events</a>{% endif %}
+                <a href="#about">About the Office</a>
+                <a href="#programs">Programs</a>
+                <a href="#responsibility">Alumni Responsibility</a>
+                <a href="#ambassadors">Alumni Ambassadors</a>
+                <a href="#contact">Contact</a>
+            </nav>
+          </div>
+          <div class="hero-art">
+            <img src="/static/images/alumni-hero.webp" width="810" height="900"
+                 alt="Illustration of an ISAT U alumnus in blue work overalls, carrying a wooden pole and a steel gear">
+          </div>
+        </div>
+
+        <!-- ===================== UPCOMING EVENTS (posted by the admin) ===================== -->
+        {% if events %}
+        <section id="events">
+            <h2>Upcoming Events</h2>
+            <div class="event-grid">
+                {% for e in events %}{{ event_card(e) }}{% endfor %}
+            </div>
+            <p style="margin-top: 16px;"><a class="event-more" href="/events">See all events &rarr;</a></p>
+        </section>
+        {% endif %}
+
+        <!-- ===================== ABOUT THE OFFICE ===================== -->
+        <section id="about">
+            <h2>About the Office of Alumni Affairs and Relations</h2>
+            <p class="lead">
+                The Office of the Alumni Affairs and Relations at ISAT U fosters lifelong connections between the
+                university and its graduates. It builds relationships through regular communication, events, and
+                engagement activities. The office encourages alumni involvement in mentoring, guest lecturing, and
+                advisory roles, and maintains an up-to-date alumni database for effective outreach. It mobilizes
+                resources for university projects, offers career services, and recognizes alumni achievements. By
+                promoting university goals and values, the office enhances alumni pride and contributes to ISAT U's
+                growth and success.
+            </p>
+        </section>
+
+        <!-- ===================== PROGRAMS ===================== -->
+        <!-- Add, remove or edit a program by copying one <div class="card"> block -->
+        <section id="programs">
+            <h2>Programs</h2>
+            <div class="cards">
+                <div class="card">
+                    <div class="program-icon"><img src="/static/images/programs/mentoring.png" alt="Alumni mentoring a student at a laptop"></div>
+                    <h3>ISATU Students-Alumni Mentoring</h3>
+                    <p>Alumni share their experience with current students through mentoring, guest lecturing,
+                       and advisory roles.</p>
+                </div>
+                <div class="card">
+                    <div class="program-icon"><img src="/static/images/programs/i-connect.png" alt="I-CONNECT logo: Keeping in touch with ISAT U"></div>
+                    <h3>I-CONNECT</h3>
+                    <p class="tagline">Keeping in touch with ISAT U</p>
+                    <p>Regular communication, events, and engagement activities that keep alumni connected with
+                       the University.</p>
+                </div>
+                <div class="card">
+                    <div class="program-icon"><img src="/static/images/programs/databank.png" alt="Cloud database illustration"></div>
+                    <h3>Alumni Databank System</h3>
+                    <p>An up-to-date alumni database that supports effective outreach and the monitoring of
+                       graduate employability.</p>
+                </div>
+                <div class="card">
+                    <div class="program-icon"><img src="/static/images/programs/tracing.png" alt="People working with charts and reports"></div>
+                    <h3>Alumni Tracing</h3>
+                    <p>The Alumni Tracer Study follows our graduates' education, employment, and achievements,
+                       and helps the University with its SUC Leveling and Program Accreditation.</p>
+                    <a class="card-link" href="/survey">Answer the tracer study &rarr;</a>
+                </div>
+                <div class="card">
+                    <div class="program-icon"><img src="/static/images/programs/pasidungog.png" alt="Pasidungog 2025 poster"></div>
+                    <h3>Pasidungog 2025</h3>
+                    <p class="tagline">Celebrate the memories, celebrate with the University</p>
+                    <p>Recognizes alumni achievements and honors the jubilarians, the batches celebrating their
+                       milestone anniversaries.</p>
+                </div>
+                <div class="card">
+                    <div class="program-icon"><img src="/static/images/programs/career.png" alt="Person looking ahead beside rising arrows"></div>
+                    <h3>Career Education</h3>
+                    <p>Career services that support alumni and graduating students in their professional
+                       growth.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== ALUMNI RESPONSIBILITY ===================== -->
+        <section id="responsibility">
+            <h2>Alumni Responsibility</h2>
+            <p class="lead section-intro">Participate in various activities of the University.</p>
+            <div class="two-col">
+                <div class="card">
+                    <h3>Participate in various AAR activities and programs</h3>
+                    <ul class="activity-list">
+                        <li>I-CONNECT</li>
+                        <li>ISAM</li>
+                        <li>Hello ISAT U</li>
+                        <li>
+                            Alumni Tracing
+                            <ul>
+                                <li>will help our University with its SUC Leveling and Program Accreditation</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <a class="card-link" href="/survey">Participate in the Tracer Study &rarr;</a>
+                </div>
+                <div class="card">
+                    <h3>SUC Leveling</h3>
+                    <p>
+                        <strong>SUC Leveling</strong> is conducted to determine the classification level of a
+                        state university or college and assess its performance based on research, instruction,
+                        extension, and resource management.
+                    </p>
+                    <div class="kra">
+                        <p><strong>Key Result Area (KRA 1)</strong></p>
+                        <p>Quality and Relevance of Instruction &ndash; 16 points</p>
+                        <p class="item">Item 5: Employability of Graduates</p>
+                    </div>
+                    <p class="muted source">
+                        Mandate: Department of Budget and Management and Commission on Higher Education Joint
+                        Circular No. 1, s. 2016 (April 13, 2016), &ldquo;FY 2016 Leveling Instrument for SUCs and
+                        Guidelines for Implementation Thereof&rdquo;.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== ALUMNI AMBASSADORS ===================== -->
+        <section id="ambassadors">
+            <h2>ISAT U Alumni Ambassadors</h2>
+            <p class="lead section-intro">
+                <strong>ISAT U Alumni Ambassadors</strong> &mdash; a dynamic group of passionate graduates dedicated
+                to strengthening the bridge between the university and its alumni community.
+            </p>
+
+            <h3>Who are the Alumni Ambassadors?</h3>
+            <p class="muted">
+                They are proud representatives of Iloilo Science and Technology University &ndash; chosen for their
+                leadership, integrity, and commitment to lifelong learning. These ambassadors embody the ISAT U
+                spirit of excellence, innovation, and service.
+            </p>
+
+            <h3>Our Advocacy</h3>
+            <p class="muted">The ISAT U Alumni Ambassadors aim to:</p>
+            <ul class="advocacy">
+                <li><strong>Reconnect</strong> <span>alumni across generations to celebrate shared pride and achievements.</span></li>
+                <li><strong>Inspire</strong> <span>current students through mentorship, leadership, and real-world experiences.</span></li>
+                <li><strong>Empower</strong> <span>the ISAT U community by promoting alumni engagement, professional growth, and community service.</span></li>
+                <li><strong>Uphold</strong> <span>the values of ISAT U &mdash; excellence, service, and innovation &mdash; wherever we go.</span></li>
+            </ul>
+        </section>
+
+        <!-- ===================== DEGREE PROGRAMS (each college's list from its admin Programs page) ===================== -->
+        <section id="degrees">
+            <h2>Degree Programs of the Colleges</h2>
+            <p class="muted">The tracer study covers graduates of the following programs.</p>
+            <!-- Descriptions come from PROGRAM_INFO in db.py (programs without one show just their name) -->
+            {% for college_code, college_name, programs in college_groups %}
+            <h3 class="college-heading" id="college-{{ college_code|lower }}">
+                {% if college_code|college_logo %}<img src="{{ college_code|college_logo }}" alt="{{ college_name }} logo">{% endif %}
+                {{ college_name }} <span>{{ programs|length }} program{{ 's' if programs|length != 1 }}</span></h3>
+            <ul class="program-list">
+                {% for code, name in programs %}
+                {% set about, careers = program_info.get(college_code, {}).get(code, ('', '')) %}
+                <li>
+                    <span class="program-code">{{ code }}</span>
+                    <div>
+                        <h3>{{ name|program_name }}</h3>
+                        {% if about %}<p>{{ about }}</p>{% endif %}
+                        {% if careers %}<p class="careers"><strong>Career paths:</strong> {{ careers }}</p>{% endif %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endfor %}
+        </section>
+
+        <!-- ===================== CONTACT ===================== -->
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <p class="muted">Should you have any questions or require assistance, please reach out to us.</p>
+            <dl class="contact">
+                <dt>Mr. Rey Martin D. Esperida</dt>
+                <dd>CCI, Alumni Affairs and Relations Coordinator</dd>
+                <dd>Iloilo Science and Technology University</dd>
+                <!-- Add the office email, phone number and location here, for example:
+                <dt>Email</dt>
+                <dd>alumni.office@example.edu.ph</dd>
+                <dt>Office</dt>
+                <dd>Building / room, campus</dd>
+                -->
+            </dl>
+        </section>
+    </main>
+    {% include "_footer.html" %}
+</body>
+</html>

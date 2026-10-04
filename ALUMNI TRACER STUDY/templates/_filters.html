@@ -1,0 +1,36 @@
+{# Year / program filter bar for the admin pages. Needs `filters` and `options` from get_filters() / filter_options().
+   Add it with:  {% include "_filters.html" %} #}
+<form class="filter-bar card" method="GET" action="{{ request.path }}">
+    {% if filters.type %}<input type="hidden" name="type" value="{{ filters.type }}">{% endif %}
+    <div class="field">
+        <label for="f-year">Year graduated</label>
+        <select id="f-year" name="year" onchange="this.form.submit()">
+            <option value="">All years</option>
+            {% for year in options.years %}
+            <option value="{{ year }}" {{ 'selected' if year == filters.year }}>{{ year }}</option>
+            {% endfor %}
+            {% if filters.year and filters.year not in options.years %}
+            <option value="{{ filters.year }}" selected>{{ filters.year }}</option>
+            {% endif %}
+        </select>
+    </div>
+    <div class="field">
+        <label for="f-program">Program</label>
+        <select id="f-program" name="program" onchange="this.form.submit()">
+            <option value="">All programs</option>
+            {% for code, name in options.programs %}
+            <option value="{{ code }}" {{ 'selected' if code == filters.program }}>{{ code }} &ndash; {{ name|program_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <noscript><button type="submit" class="btn">Apply</button></noscript>
+    {% if filters.active %}
+    <a class="btn secondary" href="{{ request.path }}{{ '?type=' ~ filters.type if filters.type }}">Clear filters</a>
+    {% endif %}
+</form>
+{% if filters.active %}
+<p class="filter-note">
+    Showing <strong>{{ filters.year or 'all years' }}</strong> &middot;
+    <strong>{{ filters.program_name|program_name if filters.program else 'all programs' }}</strong>
+</p>
+{% endif %}

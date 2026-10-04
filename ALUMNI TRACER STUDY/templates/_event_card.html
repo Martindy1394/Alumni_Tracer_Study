@@ -1,0 +1,25 @@
+{# One event as a card. Use with:  {% from "_event_card.html" import event_card %}  then  {{ event_card(event) }} #}
+{% macro event_card(e, past=false) %}
+{% set badge = e.event_date|date_badge %}
+<article class="event-card{{ ' past' if past }}">
+    <a class="event-media" href="/events/{{ e.id }}" tabindex="-1" aria-hidden="true">
+        {% if e.image %}
+        <img src="/static/event_images/{{ e.image }}" alt="" loading="lazy">
+        {% else %}
+        <span class="event-placeholder"><span>{{ badge.month }}</span><strong>{{ badge.day }}</strong></span>
+        {% endif %}
+        <span class="date-badge"><span>{{ badge.month }}</span><strong>{{ badge.day }}</strong></span>
+    </a>
+    <div class="event-body">
+        {# which college posted the event #}
+        <span class="college-label" title="Posted by the {{ e.college|college_name }}">{{ e.college|college_name }}</span>
+        <h3><a href="/events/{{ e.id }}">{{ e.title }}</a></h3>
+        <p class="event-meta">
+            {{ e.event_date|long_date }}{% if e.event_time %} &middot; {{ e.event_time }}{% endif %}
+            {% if e.location %}<br>{{ e.location }}{% endif %}
+        </p>
+        <p class="event-excerpt">{{ e.description|truncate(150) }}</p>
+        <a class="event-more" href="/events/{{ e.id }}">View details &rarr;</a>
+    </div>
+</article>
+{% endmacro %}

@@ -1,0 +1,14 @@
+# Email account the site sends from (verification codes and the Email Alumni page).
+# Fill in the two blank lines, save, then restart the site (close the window and run start.bat again).
+# Lines starting with # are notes.
+#
+# For a Gmail account:
+#   1. Turn on 2-Step Verification:  https://myaccount.google.com/security
+#   2. Create an app password:       https://myaccount.google.com/apppasswords
+#   3. Put the Gmail address in MAIL_USERNAME and the 16-letter app password in MAIL_PASSWORD (no spaces).
+# Keep this file private: it holds a password.
+
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=
+MAIL_PASSWORD=

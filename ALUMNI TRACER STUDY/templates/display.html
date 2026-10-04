@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Responses | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .table-wrap { overflow-x: auto; margin-top: 20px; background: var(--card); }
+        table { border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
+        th { background-color: #f2f2f2; min-width: 120px; }
+        th.group { background-color: #e0e0e0; text-align: center; white-space: nowrap; }
+        td { min-width: 120px; max-width: 320px; }
+        th.id, td.id { min-width: 0; }
+        .empty { padding: 16px 0; color: #666; }
+        .records-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; }
+        .records-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+        /* Alumni / New Graduates tabs */
+        .type-tabs { display: inline-flex; gap: 4px; margin-top: 14px; padding: 4px; border-radius: 12px;
+                     background: var(--surface-alt); border: 1px solid var(--border); max-width: 100%; }
+        .type-tab { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 9px;
+                    color: var(--text-secondary); font-family: var(--font-heading); font-weight: 600;
+                    text-decoration: none; white-space: nowrap; }
+        .type-tab:hover { color: var(--brand-navy); background: rgba(255, 255, 255, 0.6); }
+        .type-tab.selected { background: var(--card); color: var(--brand-navy-dark); box-shadow: 0 1px 4px rgba(8, 17, 92, 0.15); }
+        .tab-count { min-width: 26px; padding: 1px 8px; border-radius: 999px; background: var(--border);
+                     color: var(--text-primary); font-size: 0.8em; text-align: center; }
+        .type-tab.selected .tab-count { background: var(--brand-gold); color: var(--brand-navy-dark); }
+        .download-form { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+        .download-form label { font-weight: 600; font-size: 0.9em; }
+        .download-form select { padding: 9px 10px; font-size: 1em; border: 1px solid #c9cee3; border-radius: 8px; background: #fff; }
+    </style>
+</head>
+<body>
+    {% include "_nav.html" %}
+
+    <main id="main">
+    <h1 class="page-title">All Responses</h1>
+
+    <!-- Respondent type: each survey form has its own questions, so each gets its own table -->
+    <div class="type-tabs" role="tablist" aria-label="Respondent type">
+        {% for tab in tabs %}
+        <a href="{{ tab.url }}" role="tab" aria-selected="{{ 'true' if tab.selected else 'false' }}"
+           class="type-tab{{ ' selected' if tab.selected }}">
+            {{ tab.label }} <span class="tab-count">{{ tab.count }}</span>
+        </a>
+        {% endfor %}
+    </div>
+
+    {% include "_filters.html" %}
+
+
+    <div class="records-head">
+        <p>{{ type_label }} &middot; {{ 'matching' if filters.active else 'total' }} records: <strong>{{ tracer|length }}</strong></p>
+        {# Shown on both tabs, even with no records yet (the download then has just the column headings) #}
+        <div class="records-actions">
+            <!-- Download the responses shown here (same filter) -->
+            <form class="download-form" method="GET" action="/admin/records/export">
+                <input type="hidden" name="type" value="{{ filters.type }}">
+                {% if filters.year %}<input type="hidden" name="year" value="{{ filters.year }}">{% endif %}
+                {% if filters.program %}<input type="hidden" name="program" value="{{ filters.program }}">{% endif %}
+                <label for="format">Download as</label>
+                <select id="format" name="format">
+                    {% for key, (label, _) in export_formats.items() %}
+                    <option value="{{ key }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn gold">Download</button>
+            </form>
+            {% if tracer %}
+            <a class="btn secondary" href="/admin/mail{{ '?' ~ filters.query if filters.query }}">Email {{ 'these' if filters.active else 'all' }} {{ type_label|lower }}</a>
+            {% else %}
+            <span class="btn secondary is-disabled" aria-disabled="true"
+                  title="There is no one to email yet">Email {{ 'these' if filters.active else 'all' }} {{ type_label|lower }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if tracer %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th class="id" rowspan="2">ID</th>
+                    {% for title, columns in groups %}
+                    <th class="group" colspan="{{ columns|length }}">{{ title }}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for title, columns in groups %}
+                        {% for key, label in columns %}
+                        <th>{{ label }}</th>
+                        {% endfor %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through the Python 'tracer' list dynamically -->
+                {% for user in tracer %}
+                <tr>
+                    <td class="id">{{ user['id'] }}</td>
+                    {% for title, columns in groups %}
+                        {% for key, label in columns %}
+                        {% if key == 'proofFile' and user[key] %}
+                        <td><a href="/uploads/{{ user[key] }}" target="_blank">View file</a></td>
+                        {% else %}
+                        {# Older records have no value (NULL) for the newer fields #}
+                        <td>{{ user[key] or '' }}</td>
+                        {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="empty">{{ "No responses match this filter." if filters.active else "No " ~ type_label|lower ~ " have submitted the survey yet." }}</p>
+    {% endif %}
+    </main>
+
+    {% include "_footer.html" %}
+</body>
+</html>

@@ -1,0 +1,670 @@
+/* Shared styles for every page of the CCI Alumni site.
+   Colours follow the ISAT U seal: royal navy, gold and torch red. */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Open+Sans:wght@400;600;700&display=swap");
+
+:root {
+    /* ISAT U brand */
+    --brand-navy: #0d1b8e;        /* seal ring */
+    --brand-navy-dark: #08115c;   /* header / footer background */
+    --brand-gold: #f8c800;        /* seal field */
+    --brand-gold-soft: #fff5cc;
+    --brand-red: #d71920;         /* torch flame */
+
+    /* Page roles */
+    --surface: #f6f7fb;
+    --surface-alt: #eceef7;
+    --card: #ffffff;
+    --border: #dde0ee;
+    --text-primary: #161a33;
+    --text-secondary: #4b5068;
+    --accent: var(--brand-navy);
+    --accent-ink: #ffffff;
+    --bar: #2340b8;
+    --danger: #c5221f;
+    --shadow: 0 1px 2px rgba(8, 17, 92, 0.06), 0 4px 14px rgba(8, 17, 92, 0.06);
+
+    --font-heading: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --font-body: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { scroll-padding-top: 185px; }   /* header height + a little space */
+/* Glide (instead of jump) when following links to page sections, e.g. Programs, Contact, back to top */
+html { scroll-behavior: smooth; }
+/* ...but not for visitors who have asked their device for less motion */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+}
+
+body {
+    margin: 0;
+    background: var(--surface);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+main { flex: 1 0 auto; width: 100%; }
+
+h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--brand-navy-dark); line-height: 1.25; }
+h1 { font-weight: 700; }
+h2, h3 { font-weight: 600; }
+
+a { color: var(--accent); }
+button, input, select, textarea { font-family: inherit; }
+img { max-width: 100%; }
+
+/* ---------- Fixed header: brand bar + navigation stay at the top while scrolling ---------- */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    box-shadow: 0 2px 10px rgba(8, 17, 92, 0.12);
+}
+
+/* ---------- Brand header: ISAT U seal (left), office name, AAR logo (right) ---------- */
+.brand-bar {
+    background: linear-gradient(90deg, var(--brand-navy-dark), var(--brand-navy) 50%, var(--brand-navy-dark));
+    border-bottom: 4px solid var(--brand-gold);
+    color: #ffffff;
+}
+.brand-bar .inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+.brand-bar .logo {
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+    flex: none;
+    padding: 4px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(248, 200, 0, 0.6);
+}
+.brand-text {
+    flex: 1;
+    text-align: center;
+    text-decoration: none;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.brand-text .uni {
+    font-family: var(--font-heading);
+    font-size: 0.85em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--brand-gold);
+    font-weight: 600;
+}
+.brand-text .office {
+    font-family: var(--font-heading);
+    font-size: 1.55em;
+    font-weight: 700;
+    line-height: 1.2;
+}
+.brand-text .college { font-size: 0.9em; opacity: 0.9; }
+
+/* ---------- Navigation bar ---------- */
+.site-nav {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+}
+.site-nav .inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 8px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+}
+.site-nav .links { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.site-nav .links.right { margin-left: auto; }
+.site-nav a {
+    text-decoration: none;
+    color: var(--text-primary);
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: 0.95em;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-bottom: 3px solid transparent;
+}
+.site-nav .links a:hover { background: var(--surface-alt); }
+.site-nav .links a.active { color: var(--brand-navy); border-bottom-color: var(--brand-gold); border-radius: 6px 6px 0 0; }
+.site-nav a.cta {
+    background: var(--brand-gold);
+    color: var(--brand-navy-dark);
+    font-weight: 600;
+    border-bottom: none;
+}
+.site-nav a.cta:hover { background: #ffd633; }
+
+/* "Colleges" dropdown in the navigation bar */
+.nav-drop { position: relative; }
+.nav-drop summary {
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-bottom: 3px solid transparent;
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: 0.95em;
+    cursor: pointer;
+}
+.nav-drop summary::-webkit-details-marker { display: none; }
+.nav-drop summary:hover, .nav-drop[open] summary { background: var(--surface-alt); }
+.nav-drop summary svg { transition: transform 0.15s; }
+.nav-drop[open] summary svg { transform: rotate(180deg); }
+.nav-drop .menu {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 6px);
+    z-index: 10;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(8, 17, 92, 0.12);
+}
+.nav-drop .menu a { display: flex; align-items: center; gap: 10px; border-bottom: none; }
+.nav-drop .menu img { width: 28px; height: 28px; object-fit: contain; flex: none; }
+
+/* Phone menu button (hidden on wider screens) */
+.menu-toggle {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--brand-navy-dark);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.95em;
+    cursor: pointer;
+}
+.menu-toggle .icon-close { display: none; }
+.site-nav.open .menu-toggle .icon-close { display: inline; }
+.site-nav.open .menu-toggle .icon-open { display: none; }
+.site-nav a.cta.active { box-shadow: inset 0 -3px 0 rgba(8, 17, 92, 0.35); }
+
+/* Keyboard users: a clear outline on whatever has focus */
+a:focus-visible, button:focus-visible, summary:focus-visible, select:focus-visible,
+input[type="checkbox"]:focus-visible, input[type="radio"]:focus-visible {
+    outline: 3px solid var(--brand-gold);
+    outline-offset: 2px;
+}
+/* "Skip to content" link: hidden until a keyboard user presses Tab */
+.skip-link {
+    position: absolute;
+    left: 12px;
+    top: -60px;
+    z-index: 100;
+    padding: 10px 16px;
+    border-radius: 0 0 8px 8px;
+    background: var(--brand-gold);
+    color: var(--brand-navy-dark);
+    font-weight: 700;
+    text-decoration: none;
+}
+.skip-link:focus { top: 0; }
+
+/* "Back" links at the top of forms: easy to tap */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 6px 2px;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    text-decoration: none;
+}
+.back-link:hover { text-decoration: underline; }
+
+/* Back-to-top button (added by _footer.html) */
+.to-top {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 25;
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 50%;
+    background: var(--brand-navy);
+    color: #ffffff;
+    box-shadow: 0 6px 18px rgba(8, 17, 92, 0.3);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+}
+.to-top.show { opacity: 1; transform: none; pointer-events: auto; }
+.to-top:hover { background: var(--brand-navy-dark); }
+
+/* ---------- Page layout ---------- */
+main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 16px 56px;
+}
+.page-title { margin: 8px 0 4px; }
+.lead { color: var(--text-secondary); font-size: 1.1em; max-width: 760px; }
+section { margin-top: 48px; }
+section h2 { position: relative; padding-bottom: 10px; margin-bottom: 16px; }
+section h2::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 56px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--brand-gold);
+}
+.muted { color: var(--text-secondary); }
+
+.btn {
+    display: inline-block;
+    padding: 11px 20px;
+    border-radius: 8px;
+    border: 2px solid var(--accent);
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.btn:hover { background: var(--brand-navy-dark); border-color: var(--brand-navy-dark); }
+.btn.secondary { background: transparent; color: var(--accent); }
+.btn.secondary:hover { background: var(--surface-alt); }
+.btn.is-disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+.btn.gold { background: var(--brand-gold); border-color: var(--brand-gold); color: var(--brand-navy-dark); }
+.btn.gold:hover { background: #ffd633; border-color: #ffd633; }
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+}
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+}
+.card h3 { margin: 0 0 6px; font-size: 1.05em; }
+.card p { margin: 0; color: var(--text-secondary); }
+
+/* ---------- Footer ---------- */
+.site-footer {
+    flex-shrink: 0;
+    background: var(--brand-navy-dark);
+    border-top: 4px solid var(--brand-gold);
+    color: #d9dcf2;
+    font-size: 0.9em;
+}
+.site-footer .inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 24px;
+}
+.site-footer .logos { display: flex; gap: 10px; }
+.site-footer .logos img { width: 44px; height: 44px; object-fit: contain; }
+.site-footer strong { color: #ffffff; font-family: var(--font-heading); font-weight: 600; }
+.site-footer p { margin: 0; }
+.site-footer .copy { margin-left: auto; opacity: 0.8; }
+
+/* Tablets: slimmer header so the links and the main action stay on one row */
+@media (max-width: 1024px) {
+    .brand-bar .logo { width: 60px; height: 60px; }
+    .brand-text .office { font-size: 1.3em; }
+    .site-nav .cta-long { display: none; }
+    .site-nav a { padding: 10px; }
+}
+
+@media (max-width: 640px) {
+    html { scroll-padding-top: 224px; }   /* the brand text wraps to more lines on phones */
+    .brand-bar .logo { width: 50px; height: 50px; padding: 3px; }
+    .brand-text .office { font-size: 1.1em; }
+    .brand-text .uni { font-size: 0.68em; letter-spacing: 0.04em; }
+    .brand-text .college { font-size: 0.75em; }
+    /* Folded menu: "Menu" button + main action on one row; links drop down below */
+    .site-nav .inner { position: relative; flex-wrap: nowrap; }
+    .menu-toggle { display: inline-flex; }
+    .site-nav .cta-long { display: none; }
+    .site-nav #navLinks {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2px;
+        padding: 8px 12px 12px;
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 10px 20px rgba(8, 17, 92, 0.12);
+    }
+    /* the open menu scrolls by itself when it is taller than the screen (e.g. with Colleges expanded) */
+    .site-nav.open #navLinks { display: flex; flex-wrap: nowrap; max-height: calc(100vh - 230px); overflow-y: auto; }
+    .site-nav #navLinks a { padding: 12px 14px; border-bottom: none; border-left: 3px solid transparent; border-radius: 6px; }
+    .site-nav #navLinks a.active { border-left-color: var(--brand-gold); background: var(--surface-alt); border-radius: 0 6px 6px 0; }
+    /* inside the folded menu the college list opens in place, indented under "Colleges" */
+    .nav-drop summary { display: flex; justify-content: space-between; padding: 12px 14px; border-bottom: none; border-left: 3px solid transparent; }
+    .nav-drop .menu { position: static; min-width: 0; margin: 2px 0 4px 12px; padding: 0; border: none; border-left: 2px solid var(--border); border-radius: 0; box-shadow: none; }
+    .site-footer .copy { margin-left: 0; }
+}
+
+/* Short screens (a phone held sideways): let the header scroll away so the page keeps its room */
+@media (max-height: 520px) {
+    html { scroll-padding-top: 16px; }
+    .site-header { position: static; }
+}
+
+/* ---------- Forms (login, setup, settings) ---------- */
+.form-card { max-width: 420px; margin: 40px auto; }
+main.narrow { max-width: 640px; }
+.settings-section { margin-top: 20px; }
+.settings-section h2 { margin: 0 0 8px; font-size: 1.2em; }
+.form-card label, .settings-section label { display: block; margin: 16px 0 6px; font-weight: 600; }
+.form-card input, .settings-section input {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 1em;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    color: var(--text-primary);
+}
+.form-card input[readonly], .settings-section input[readonly] { background: var(--surface-alt); color: var(--text-secondary); }
+.form-card .btn, .settings-section .btn { margin-top: 18px; }
+.form-card .btn { width: 100%; }
+.form-card .btn + .btn { margin-top: 8px; }
+.hint { margin: 4px 0 0; color: var(--text-secondary); font-size: 0.9em; }
+.code-input { font-size: 1.6em !important; letter-spacing: 0.4em; text-align: center; font-variant-numeric: tabular-nums; }
+
+/* ---------- Messages ---------- */
+.flash { border-radius: 6px; padding: 8px 12px; border: 1px solid; margin: 12px 0; }
+.flash-success { color: #1e6b34; border-color: #1e6b34; background: #eef7f0; }
+.flash-error { color: var(--danger); border-color: var(--danger); background: #fdf0ef; }
+.flash-info { color: var(--accent); border-color: var(--accent); background: #eef3fa; }
+
+/* ---------- Profile menu (admin) ---------- */
+.profile { position: relative; }
+.profile summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+.profile summary::-webkit-details-marker { display: none; }
+.profile summary:hover, .profile[open] summary { background: var(--surface-alt); }
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--brand-gold);
+    color: var(--brand-navy-dark);
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 0.85em;
+    font-family: var(--font-heading);
+}
+.profile .menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 10;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+.profile .menu .who {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 12px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9em;
+    overflow-wrap: anywhere;
+}
+.profile .menu .who span { color: var(--text-secondary); }
+@media (max-width: 560px) {
+    .profile-name { display: none; }
+}
+
+/* College badge beside a coordinator's profile menu */
+.college-tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 6px 10px;
+    border: 1px solid #f3df8a;
+    border-radius: 8px;
+    background: var(--brand-gold-soft);
+    color: var(--brand-navy-dark);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.9em;
+}
+/* System administrator: the colleges to look at, inside the profile menu */
+.college-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 4px; padding: 4px 12px 10px; border-bottom: 1px solid var(--border); }
+.college-list .menu-label { flex-basis: 100%; font-size: 0.8em; color: var(--text-secondary); }
+.college-list button {
+    min-height: 34px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--brand-navy-dark);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.85em;
+    cursor: pointer;
+}
+.college-list button:hover { background: var(--surface-alt); }
+.college-list button.active { background: var(--brand-gold-soft); border-color: #f3df8a; }
+
+/* ---------- Charts and summary tables (admin pages, macros in _charts.html) ---------- */
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
+.tile .value { font-size: 2.2em; font-weight: 700; line-height: 1.1; }
+.tile .label { color: var(--text-secondary); }
+
+/* Horizontal bar chart: label | bar | count */
+.bars { display: grid; gap: 10px; margin-top: 12px; }
+.bar-row { display: grid; grid-template-columns: minmax(140px, 1.1fr) 2fr minmax(90px, auto); gap: 12px; align-items: center; }
+.bar-row .name { font-size: 0.95em; }
+.bar-track { height: 18px; }
+.bar-fill { height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; min-width: 2px; }
+.bar-fill.zero { background: transparent; border-left: 2px solid var(--border); }
+.bar-row .count { font-variant-numeric: tabular-nums; color: var(--text-secondary); white-space: nowrap; }
+.bar-row .count strong { color: var(--text-primary); }
+
+/* Response rate: fixed 0-100% track with the value beside it */
+.rate { display: flex; align-items: center; gap: 10px; min-width: 180px; }
+.rate-track { flex: 1; height: 12px; background: var(--surface-alt); border-radius: 4px; overflow: hidden; }
+.rate-fill { height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
+.rate-value { font-variant-numeric: tabular-nums; min-width: 3.5em; text-align: right; }
+
+.table-scroll { overflow-x: auto; margin-top: 12px; }
+table.summary { border-collapse: collapse; width: 100%; min-width: 560px; background: var(--card); }
+table.summary th, table.summary td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: middle; }
+table.summary th { background: var(--surface-alt); }
+table.summary td.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.summary tfoot td { font-weight: 600; background: var(--surface-alt); }
+table.summary tfoot .rate-track { background: var(--border); }
+.warn-note { display: block; font-size: 0.85em; color: var(--danger); }
+
+@media (max-width: 560px) {
+    .bar-row { grid-template-columns: 1fr minmax(80px, auto); }
+    .bar-row .bar-track { grid-column: 1 / -1; grid-row: 2; }
+}
+
+/* ---------- Admin filter bar (_filters.html) ---------- */
+.filter-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px; margin-top: 16px; padding: 14px 18px; }
+.filter-bar .field { flex: 1 1 200px; min-width: 0; max-width: 100%; }
+.filter-bar .field:first-of-type { flex: 0 1 200px; }   /* the Year dropdown stays compact */
+.filter-bar .field label { display: block; font-weight: 600; font-size: 0.9em; margin-bottom: 4px; }
+.filter-bar select {
+    width: 100%;
+    max-width: 100%;
+    padding: 9px 10px;
+    font-size: 1em;
+    border: 1px solid #c9cee3;
+    border-radius: 8px;
+    background: #ffffff;
+    color: var(--text-primary);
+}
+.filter-note {
+    display: inline-block;
+    margin: 12px 0 0;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--brand-gold-soft);
+    border: 1px solid #f3df8a;
+    font-size: 0.9em;
+}
+.page-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ---------- Event postings (_event_card.html, events.html, event_detail.html) ---------- */
+.event-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.event-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.event-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(8, 17, 92, 0.12); }
+.event-media { position: relative; display: block; aspect-ratio: 16 / 9; background: var(--surface-alt); }
+.event-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.event-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at 80% 20%, rgba(248, 200, 0, 0.35), transparent 45%),
+        linear-gradient(135deg, var(--brand-navy-dark), var(--brand-navy));
+    color: #ffffff;
+    font-family: var(--font-heading);
+}
+.event-placeholder span { color: var(--brand-gold); letter-spacing: 0.15em; font-weight: 600; }
+.event-placeholder strong { font-size: 3.2em; line-height: 1; }
+.date-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 54px;
+    padding: 6px 0;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(8, 17, 92, 0.2);
+    text-align: center;
+    font-family: var(--font-heading);
+    line-height: 1.1;
+}
+.date-badge span { display: block; font-size: 0.72em; font-weight: 600; letter-spacing: 0.08em; color: var(--brand-red); }
+.date-badge strong { display: block; font-size: 1.35em; color: var(--brand-navy-dark); }
+.event-placeholder + .date-badge { display: none; }   /* the placeholder already shows the date */
+.event-body { display: flex; flex-direction: column; flex: 1; padding: 16px 18px 18px; }
+/* Which college posted the event */
+.college-label {
+    display: inline-block;
+    align-self: flex-start;
+    margin-bottom: 8px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--brand-gold-soft);
+    border: 1px solid #f3df8a;
+    color: var(--brand-navy-dark);
+    font-family: var(--font-heading);
+    font-size: 0.78em;
+    font-weight: 600;
+}
+.event-body h3 { margin: 0 0 6px; font-size: 1.1em; }
+.event-body h3 a { color: inherit; text-decoration: none; }
+.event-body h3 a:hover { color: var(--brand-navy); text-decoration: underline; }
+.event-meta { margin: 0 0 8px; font-size: 0.9em; color: var(--brand-navy); font-weight: 600; }
+.event-excerpt { margin: 0 0 12px; color: var(--text-secondary); flex: 1; }
+.event-more { font-weight: 600; text-decoration: none; font-family: var(--font-heading); font-size: 0.95em; }
+.event-more:hover { text-decoration: underline; }
+.event-card.past { opacity: 0.85; }
+.event-card.past .event-media img { filter: grayscale(0.4); }
+
+/* ---------- Row action buttons in admin tables (Edit / View / Delete), icons from _icons.html ---------- */
+.row-actions { display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; }   /* one line per row */
+.row-actions form { margin: 0; display: contents; }
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--brand-navy);
+    font-family: var(--font-heading);
+    font-size: 0.85em;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.action-btn .icon { flex: none; }
+.action-btn:hover { background: var(--surface-alt); border-color: #c3c8e2; }
+.action-btn.primary { border-color: #c7cdf0; background: #f1f3fd; }
+.action-btn.primary:hover { background: #e3e7fb; border-color: var(--brand-navy); }
+.action-btn.danger { color: var(--danger); border-color: #f1c7c5; }
+.action-btn.danger:hover { background: #fdf0ef; border-color: var(--danger); }
+.btn .icon { vertical-align: -3px; margin-right: 4px; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }

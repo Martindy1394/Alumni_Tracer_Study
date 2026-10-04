@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events | CCI Alumni Affairs and Relations</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    {% include "_nav.html" %}
+    {% from "_event_card.html" import event_card %}
+
+    <main id="main">
+        <h1 class="page-title">Events</h1>
+        <p class="lead">Activities and gatherings of the Alumni Affairs and Relations offices of the ISAT U colleges. We hope to see you there!</p>
+
+        <section>
+            <h2>Upcoming Events</h2>
+            {% if upcoming %}
+            <div class="event-grid">
+                {% for e in upcoming %}{{ event_card(e) }}{% endfor %}
+            </div>
+            {% else %}
+            <p class="muted">There are no upcoming events right now. Please check back soon.</p>
+            {% endif %}
+        </section>
+
+        {% if past %}
+        <section>
+            <h2>Past Events</h2>
+            <div class="event-grid">
+                {% for e in past %}{{ event_card(e, past=true) }}{% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </main>
+    {% include "_footer.html" %}
+</body>
+</html>
